@@ -1,0 +1,16 @@
+using System;
+using Core.Enums;
+
+namespace Core.Entities;
+
+public class ExportRequest
+{
+    public int ExportRequestId { get; set; }
+    public string UserId { get; set; } 
+    public ExportFormat Format { get; set; } 
+    public DateTime RequestedAt { get; set; }
+    public DateTime? CompletedAt { get; set; } 
+    public User User { get; set; } = null!;
+}
+
+

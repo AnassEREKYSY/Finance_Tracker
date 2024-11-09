@@ -1,0 +1,18 @@
+using System;
+using Core.Enums;
+
+namespace Core.Entities;
+
+public class Transaction
+{
+    public int TransactionId { get; set; }
+    public string UserId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime Date { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public TransactionType Type { get; set; }
+    public int CategoryId { get; set; }
+    public Category Category { get; set; } = null!;
+    public User User { get; set; } = null!;
+}
+
