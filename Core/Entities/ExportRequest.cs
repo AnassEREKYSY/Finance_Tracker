@@ -10,7 +10,7 @@ public class ExportRequest
     public ExportFormat Format { get; set; } 
     public DateTime RequestedAt { get; set; }
     public DateTime? CompletedAt { get; set; } 
-    public User User { get; set; } = null!;
+    public AppUser User { get; set; } = null!;
 }
 
 

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data;
 
-public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(options)
+public class StoreContext(DbContextOptions options) : IdentityDbContext<AppUser>(options)
 {
     public DbSet<Budget> Budgets { get; set; }
     public DbSet<Category> Categories { get; set; }
