@@ -24,7 +24,7 @@ public class UserService(UserManager<AppUser> userManager, SignInManager<AppUser
     public async Task<SignInResult> LoginUserAsync(LoginDto loginDto)
     {
         return await signInManager.PasswordSignInAsync(
-            loginDto.Email, loginDto.Password, isPersistent: false, lockoutOnFailure: false);
+            loginDto.Email, loginDto.Password, isPersistent: true, lockoutOnFailure: true);
     }
 
     public async Task LogOutAsync()
@@ -55,7 +55,7 @@ public class UserService(UserManager<AppUser> userManager, SignInManager<AppUser
         return await userManager.FindByIdAsync(userId);
     }
 
- public async Task<AppUser?> UpdateUserAsync(string userId, AppUser updatedUser)
+    public async Task<AppUser?> UpdateUserAsync(string userId, AppUser updatedUser)
     {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null)

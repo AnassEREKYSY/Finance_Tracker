@@ -29,8 +29,18 @@ namespace API.Controllers
         {
             var result = await userService.LoginUserAsync(loginDto);
 
-            if (!result.Succeeded)
+            if (!result.Succeeded){
+                if (result.IsLockedOut)
+                {
+                    Console.WriteLine("Account is locked out.");
+                }
+                if (result.IsNotAllowed)
+                {
+                    Console.WriteLine("Account is not allowed.");
+                }
+
                 return Unauthorized("Invalid login attempt");
+            }
 
             return Ok("User logged in successfully");
         }

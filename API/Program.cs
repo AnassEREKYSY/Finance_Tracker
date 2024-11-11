@@ -1,4 +1,5 @@
 using Core.Entities;
+using Core.IData;
 using Core.IServices;
 using Core.Services;
 using Infrastructure.Data;
@@ -20,6 +21,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBudgetService, BudgetService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IStoreContext>(provider => provider.GetRequiredService<StoreContext>());
+
+
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

@@ -1,50 +1,71 @@
-using System;
 using Core.Entities;
+using Core.IData;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Data;
-
-public class StoreContext(DbContextOptions options) : IdentityDbContext<AppUser>(options)
+namespace Infrastructure.Data
 {
-    public DbSet<Budget> Budgets { get; set; }
-    public DbSet<Category> Categories { get; set; }
-    public DbSet<ExportRequest> ExportRequests { get; set; }
-    public DbSet<Notification> Notifications { get; set; }
-    public DbSet<Transaction> Transactions { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public class StoreContext : IdentityDbContext<AppUser>, IStoreContext
     {
-        base.OnModelCreating(modelBuilder);
+        public StoreContext(DbContextOptions<StoreContext> options) : base(options)
+        {
+        }
+        public DbSet<Budget> Budgets { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<ExportRequest> ExportRequests { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
 
-        modelBuilder.Entity<Budget>()
-            .HasOne(b => b.User)
-            .WithMany()
-            .HasForeignKey(b => b.UserId) 
-            .HasPrincipalKey(u => u.Id);  
+        public async Task<int> SaveChangesAsync()
+        {
+            return await base.SaveChangesAsync();
+        }
 
-        modelBuilder.Entity<Transaction>()
-            .HasOne(t => t.User)
-            .WithMany()
-            .HasForeignKey(t => t.UserId) 
-            .HasPrincipalKey(u => u.Id); 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<ExportRequest>()
-            .HasOne(e => e.User)
-            .WithMany()
-            .HasForeignKey(e => e.UserId);
+            modelBuilder.Entity<Budget>()
+                .HasOne(b => b.User)
+                .WithMany()
+                .HasForeignKey(b => b.UserId)
+                .HasPrincipalKey(u => u.Id);
 
-        modelBuilder.Entity<Notification>()
-            .HasOne(n => n.User)
-            .WithMany()
-            .HasForeignKey(n => n.UserId);
-        
-        modelBuilder.Entity<Transaction>()
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.User)
+                .WithMany()
+                .HasForeignKey(t => t.UserId)
+                .HasPrincipalKey(u => u.Id);
+
+            modelBuilder.Entity<ExportRequest>()
+                .HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId);
+
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserId);
+
+            modelBuilder.Entity<Transaction>()
                 .Property(t => t.Amount)
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<Budget>()
                 .Property(b => b.Amount)
                 .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Category>()
+                .HasMany(c => c.Transactions)
+                .WithOne(t => t.Category)
+                .HasForeignKey(t => t.CategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Category>()
+                .HasMany(c => c.Budgets)
+                .WithOne(b => b.Category)
+                .HasForeignKey(b => b.CategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
+        }
     }
 }
