@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Core.Dtos;
-using Core.Entities;
 using Core.IServices;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,7 +26,7 @@ namespace API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateBudget([FromBody] Budget budget)
+        public async Task<IActionResult> CreateBudget([FromBody] CreateUpdateBudget budget)
         {
             if (budget == null)
             {
@@ -40,7 +39,7 @@ namespace API.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateBudget(int id, [FromBody] BudgetUpdatedDto budget)
+        public async Task<IActionResult> UpdateBudget(int id, [FromBody] CreateUpdateBudget budget)
         {
             if (budget == null)
             {

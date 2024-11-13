@@ -1,12 +1,12 @@
 using System;
 using Core.Entities;
-using Core.IData;
 using Core.IServices;
+using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Core.Services;
+namespace Infrastructure.Services;
 
-public class NotificationService(IStoreContext _context) : INotificationService
+public class NotificationService(StoreContext _context) : INotificationService
 {
     public async Task<Notification> CreateNotificationAsync(Notification notification)
     {

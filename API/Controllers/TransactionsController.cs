@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Core.Entities;
+using Core.Dtos;
 using Core.IServices;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,7 +33,7 @@ namespace API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateTransaction([FromBody] Transaction transaction)
+        public async Task<IActionResult> CreateTransaction([FromBody] CreateUpdateTransaction transaction)
         {
             if (transaction == null)
             {
@@ -45,18 +45,18 @@ namespace API.Controllers
             return Ok(createdTransaction);        
         }
 
-        [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateTransaction(int id, [FromBody] Transaction transaction)
-        {
-            if (transaction == null)
-            {
-                return BadRequest("Transaction data is required.");
-            }
+        // [HttpPut("update/{id}")]
+        // public async Task<IActionResult> UpdateTransaction(int id, [FromBody] CreateUpdateTransaction transaction)
+        // {
+        //     if (transaction == null)
+        //     {
+        //         return BadRequest("Transaction data is required.");
+        //     }
 
-            var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transaction,GetUserId());
-            if (updatedTransaction == null)return BadRequest("Failed to update Transaction");
-            return Ok(updatedTransaction);
-        }
+        //     var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transaction,GetUserId());
+        //     if (updatedTransaction == null)return BadRequest("Failed to update Transaction");
+        //     return Ok(updatedTransaction);
+        // }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteTransaction(int id)

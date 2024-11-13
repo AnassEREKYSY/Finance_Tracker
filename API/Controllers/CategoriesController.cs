@@ -1,3 +1,4 @@
+using Core.Dtos;
 using Core.Entities;
 using Core.IServices;
 using Microsoft.AspNetCore.Http;
@@ -26,7 +27,7 @@ namespace API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCategory([FromBody] Category category)
+        public async Task<IActionResult> CreateCategory([FromBody] CreateUpdateCategory category)
         {
             if (category == null)
             {
@@ -39,7 +40,7 @@ namespace API.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, [FromBody] Category category)
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CreateUpdateCategory category)
         {
             if (category == null)
             {

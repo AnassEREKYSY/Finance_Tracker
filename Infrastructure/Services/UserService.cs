@@ -5,7 +5,7 @@ using Core.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
-namespace Core.Services;
+namespace Infrastructure.Services;
 
 public class UserService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,IHttpContextAccessor httpContextAccessor) : IUserService
 {

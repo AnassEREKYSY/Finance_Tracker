@@ -1,14 +1,15 @@
 using System;
+using Core.Dtos;
 using Core.Entities;
 
 namespace Core.IServices;
 
 public interface ITransactionService
 {
-    Task<Transaction> CreateTransactionAsync(Transaction transaction, string userId);
-    Task<Transaction> GetTransactionByIdAsync(int id, string userId);
-    Task<IEnumerable<Transaction>> GetTransactionsByUserIdAsync(string userId);
-    Task<IEnumerable<Transaction>> GetTransactionsByCategoryIdAsync(int categoryId, string userId);
-    Task<Transaction> UpdateTransactionAsync(int id, Transaction transaction, string userId);
+    Task<CreateUpdateTransaction> CreateTransactionAsync(CreateUpdateTransaction transaction, string userId);
+    Task<CreateUpdateTransaction> GetTransactionByIdAsync(int id, string userId);
+    Task<IEnumerable<CreateUpdateTransaction>> GetTransactionsByUserIdAsync(string userId);
+    Task<IEnumerable<CreateUpdateTransaction>> GetTransactionsByCategoryIdAsync(int categoryId, string userId);
+    // Task<CreateUpdateTransaction> UpdateTransactionAsync(int id, CreateUpdateTransaction transaction, string userId);
     Task<bool> DeleteTransactionAsync(int id, string userId);
 }
