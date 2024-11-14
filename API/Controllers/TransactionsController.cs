@@ -10,39 +10,48 @@ namespace API.Controllers
     public class TransactionsController(ITransactionService _transactionService) : ControllerBase
     {
 
-        [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetTransactionsByUser(string userId)
+        [HttpGet("user")]
+        public async Task<IActionResult> GetTransactionsByUser()
         {
-            var transactions = await _transactionService.GetTransactionsByUserIdAsync(userId);
-            return Ok(transactions);
+            var result = await _transactionService.GetTransactionsByUserIdAsync(GetUserId());
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+            return Ok(result.Data);
         }
 
-        [HttpGet("category/{categoryId}")]
-        public async Task<IActionResult> GetTransactionsByCategory(int categoryId)
+        [HttpGet("category/{categoryName}")]
+        public async Task<IActionResult> GetTransactionsByCategory(string categoryName)
         {
-            var transactions = await _transactionService.GetTransactionsByCategoryIdAsync(categoryId,GetUserId());
-            return Ok(transactions);
+            var result = await _transactionService.GetTransactionsByCategoryNameAsync(categoryName,GetUserId());
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+            return Ok(result.Data);
         }
 
         [HttpGet("one/{id}")]
         public async Task<IActionResult> GetTransaction(int id)
         {
-            var transaction = await _transactionService.GetTransactionByIdAsync(id,GetUserId());
-            if (transaction == null) return NotFound("Transaction not found");
-            return Ok(transaction);
+            var result = await _transactionService.GetTransactionByIdAsync(id,GetUserId());
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+            return Ok(result.Data);
         }
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateTransaction([FromBody] CreateUpdateTransaction transaction)
         {
-            if (transaction == null)
+            var result = await _transactionService.CreateTransactionAsync(transaction,GetUserId());
+            if (!result.Success)
             {
-                return BadRequest("Transaction data is required.");
+                return BadRequest(result.Message);
             }
-
-            var createdTransaction = await _transactionService.CreateTransactionAsync(transaction,GetUserId());
-            if(createdTransaction == null) return BadRequest("Error while creating");
-            return Ok(createdTransaction);        
+            return Ok(result.Data);      
         }
 
         // [HttpPut("update/{id}")]
@@ -61,10 +70,12 @@ namespace API.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteTransaction(int id)
         {
-
-            var result = await _transactionService.DeleteTransactionAsync(id,GetUserId());
-            if(!result) return BadRequest("Error While deleting the transaction");
-            return Ok();
+            var result =await _transactionService.DeleteTransactionAsync(id,GetUserId());
+            if (!result.Success)
+            {
+                return NotFound(result.Message);
+            }
+            return Ok(result.Data);
         }
 
         private string GetUserId()

@@ -1,15 +1,16 @@
 using System;
 using Core.Dtos;
 using Core.Entities;
+using Core.Response;
 
 namespace Core.IServices;
 
 public interface ICategoryService
 {
-    Task<CreateUpdateCategory> CreateCategoryAsync(CreateUpdateCategory category);
-    Task<CreateUpdateCategory> GetCategoryByIdAsync(int id);
+    Task<ServiceResponse<CreateUpdateCategory>> CreateCategoryAsync(CreateUpdateCategory category);
+    Task<ServiceResponse<CreateUpdateCategory>> GetCategoryByIdAsync(int id);
     Task<Category> GetCategoryByNameAsync(string Name);
-    Task<IEnumerable<CreateUpdateCategory>> GetCategoriesAsync();
-    Task<CreateUpdateCategory> UpdateCategoryAsync(int id, CreateUpdateCategory category);
-    Task<bool> DeleteCategoryAsync(int id);
+    Task<ServiceResponse<IEnumerable<CreateUpdateCategory>>> GetCategoriesAsync();
+    Task<ServiceResponse<CreateUpdateCategory>>  UpdateCategoryAsync(int id, CreateUpdateCategory category);
+    Task<ServiceResponse<bool>> DeleteCategoryAsync(int id);
 }

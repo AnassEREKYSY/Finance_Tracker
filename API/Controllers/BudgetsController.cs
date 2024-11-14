@@ -13,50 +13,57 @@ namespace API.Controllers
         [HttpGet("getAll")]
         public async Task<IActionResult> GetBudgets()
         {
-            var budgets = await _budgetService.GetBudgetsAsync(GetUserId());
-            return Ok(budgets);
+            var result = await _budgetService.GetBudgetsAsync(GetUserId());
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+            return Ok(result.Data);
         }
 
         [HttpGet("one/{id}")]
         public async Task<IActionResult> GetBudget(int id)
         {
-            var budget = await _budgetService.GetBudgetByIdAsync(id, GetUserId());
-            if (budget == null) return NotFound("Budget not found");
-            return Ok(budget);
+            var result = await _budgetService.GetBudgetByIdAsync(id, GetUserId());
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+            return Ok(result.Data);
         }
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateBudget([FromBody] CreateUpdateBudget budget)
         {
-            if (budget == null)
+            var result = await _budgetService.CreateBudgetAsync(budget,GetUserId());
+            if (!result.Success)
             {
-                return BadRequest("Budget data is required.");
+                return BadRequest(result.Message);
             }
-
-            var createdBudget = await _budgetService.CreateBudgetAsync(budget,GetUserId());
-            if(createdBudget == null) return BadRequest("Error while creating");
-            return Ok(createdBudget);
+            return Ok(result.Data);
         }
 
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateBudget(int id, [FromBody] CreateUpdateBudget budget)
         {
-            if (budget == null)
+            var result = await _budgetService.UpdateBudgetAsync(id, budget,GetUserId());
+            if (!result.Success)
             {
-                return BadRequest("Budget data is required.");
+                return BadRequest(result.Message);
             }
-
-            var updatedBudget = await _budgetService.UpdateBudgetAsync(id, budget,GetUserId());
-            if (updatedBudget == null)return BadRequest("Failed to update Budget");
-            return Ok(updatedBudget);
+            return Ok(result.Data);
         }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteBudget(int id)
         {
-            var result = await _budgetService.DeleteBudgetAsync(id, GetUserId());
-            if(!result) return BadRequest("Error While deleting the budget");
-            return Ok();
+            var response = await _budgetService.DeleteBudgetAsync(id, GetUserId());
+
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return NotFound(response);
         }
 
         private string GetUserId()

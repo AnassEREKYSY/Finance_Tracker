@@ -2,6 +2,7 @@ using System;
 using Core.Dtos;
 using Core.Entities;
 using Core.IServices;
+using Core.Response;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,119 +10,183 @@ namespace Infrastructure.Services;
 
 public class TransactionService(StoreContext _context, ICategoryService categoryService, IUserService userService) : ITransactionService
 {
-    public async Task<CreateUpdateTransaction> CreateTransactionAsync(CreateUpdateTransaction transaction, string userId)
+    public async Task<ServiceResponse<CreateUpdateTransaction>> CreateTransactionAsync(CreateUpdateTransaction transaction, string userId)
     {
-        if (transaction != null && userId != null)
+        if (transaction == null || userId == null)
         {
-            var user=await userService.GetUserByIdAsync(userId)?? null;
-            var categoryBudget= await categoryService.GetCategoryByNameAsync(transaction.CategoryName);
-            var createdTransaction = new Transaction
-            {
-                UserId = userId,
-                User=user!,
-                Amount= transaction.Amount,
-                Date=DateTime.Now,
-                Description=transaction.Description,
-                Type=transaction.Type,
-                Category=categoryBudget,
-                CategoryId=categoryBudget.CategoryId
-            };
-            _context.Transactions.Add(createdTransaction);
-            await _context.SaveChangesAsync();
-            transaction.UserFirstName=user!.FirstName;
-            transaction.UserLastName=user!.LastName;
-            transaction.TransactionId=createdTransaction.TransactionId;
-            transaction.Date=createdTransaction.Date;
-            return transaction;
+            return GetReponse(false,"Invalid Transaction data or user ID.");
         }
-
-        throw new ArgumentNullException(nameof(transaction));
+        var user = await userService.GetUserByIdAsync(userId);
+        if (user == null)
+        {
+           return GetReponse(false,"User not Found.");
+        }
+        var categoryTransaction = await categoryService.GetCategoryByNameAsync(transaction.CategoryName);
+        if (categoryTransaction == null)
+        {
+            return GetReponse(false,"Category Not Found.");
+        }
+        var createdTransaction = new Transaction
+        {
+            UserId = userId,
+            User=user,
+            Amount= transaction.Amount,
+            Date=DateTime.Now,
+            Description=transaction.Description,
+            Type=transaction.Type,
+            Category=categoryTransaction,
+            CategoryId=categoryTransaction.CategoryId
+        };
+        _context.Transactions.Add(createdTransaction);
+        await _context.SaveChangesAsync();
+        transaction.UserFirstName=user!.FirstName;
+        transaction.UserLastName=user!.LastName;
+        transaction.TransactionId=createdTransaction.TransactionId;
+        transaction.Date=createdTransaction.Date;
+        return GetReponse(true,"Budget Created Successfully",transaction);
     }
 
-    public async Task<CreateUpdateTransaction> GetTransactionByIdAsync(int id, string userId)
+    public async Task<ServiceResponse<CreateUpdateTransaction>>  GetTransactionByIdAsync(int id, string userId)
     {
         var transaction = await _context.Transactions
-        .Where(t => t.TransactionId == id && t.UserId == userId)
-        .FirstOrDefaultAsync();
-        if(transaction !=  null)
-        {
-             var searchedTansaction= new CreateUpdateTransaction
-            {
-                TransactionId=transaction.TransactionId,
-                Amount=transaction.Amount,
-                Description=transaction.Description,
-                Date=transaction.Date,
-                Type=transaction.Type,
-                CategoryName=transaction.Category.Name,
-                UserFirstName=transaction.User.FirstName,
-                UserLastName=transaction.User.LastName
-            };
-            return searchedTansaction;
-        }
-         throw new KeyNotFoundException($"Transaction with id {id} not found.");
-    }
-
-    public async Task<IEnumerable<CreateUpdateTransaction>> GetTransactionsByUserIdAsync(string userId)
-    {
-        var searchedTransactions=await _context.Transactions.Where(t => t.UserId == userId).ToListAsync();
-        if(searchedTransactions == null || searchedTransactions.Count==0)
-        {
-            throw new KeyNotFoundException($"No transactions found for the user with ID {userId}.");
-        }
-        var searchedTransactionsDtos = searchedTransactions.Select(
-            t => new CreateUpdateTransaction
-                {
-                TransactionId=t.TransactionId,
-                Amount=t.Amount,
-                Description=t.Description,
-                Date=t.Date,
-                Type=t.Type,
-                CategoryName=t.Category.Name,
-                UserFirstName=t.User.FirstName,
-                UserLastName=t.User.LastName
-                }
-            ).ToList();
-
-        return searchedTransactionsDtos;
-    }
-
-    public async Task<IEnumerable<CreateUpdateTransaction>> GetTransactionsByCategoryIdAsync(int categoryId, string userId)
-    {
-        var searchedTransactions=await _context.Transactions.Where(t => t.CategoryId == categoryId && t.UserId == userId).ToListAsync();
-        if(searchedTransactions == null || searchedTransactions.Count==0)
-        {
-            throw new KeyNotFoundException($"No transactions found for the user with ID {userId}.");
-        }
-        var searchedTransactionsDtos = searchedTransactions.Select(
-            t => new CreateUpdateTransaction
-                {
-                TransactionId=t.TransactionId,
-                Amount=t.Amount,
-                Description=t.Description,
-                Date=t.Date,
-                Type=t.Type,
-                CategoryName=t.Category.Name,
-                UserFirstName=t.User.FirstName,
-                UserLastName=t.User.LastName
-                }
-            ).ToList();
-
-        return searchedTransactionsDtos;
-    }
-
-    public async Task<bool> DeleteTransactionAsync(int id, string userId)
-    {
-        var transaction = await _context.Transactions.FindAsync(id);
+            .Where(t => t.TransactionId == id && t.UserId == userId)
+            .FirstOrDefaultAsync();
+            
         if (transaction != null)
         {
-            if (transaction.UserId == userId)
+            var searchedTransaction = new CreateUpdateTransaction
             {
-                _context.Transactions.Remove(transaction);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            throw new UnauthorizedAccessException("You are not authorized to delete this transaction.");
+                TransactionId = transaction.TransactionId,
+                Amount = transaction.Amount,
+                Description = transaction.Description,
+                Date = transaction.Date,
+                Type = transaction.Type,
+                CategoryName = transaction.Category?.Name!,
+                UserFirstName = transaction.User?.FirstName,
+                UserLastName = transaction.User?.LastName   
+            };
+            
+            return GetReponse(true,"",searchedTransaction);
         }
-        throw new KeyNotFoundException($"Transaction with id {id} not found.");
+        
+        return GetReponse(false,$"Transaction with id {id} not found or does not belong to the user.");
+    }
+
+    public async Task<ServiceResponse<IEnumerable<CreateUpdateTransaction>>> GetTransactionsByUserIdAsync(string userId)
+    {
+        var response = new ServiceResponse<IEnumerable<CreateUpdateTransaction>>();
+        if (string.IsNullOrEmpty(userId))
+        {
+            response.Success = false;
+            response.Message = "User ID cannot be null or empty.";
+            return response;
+        }
+        var searchedTransactions = await _context.Transactions
+            .Where(t => t.UserId == userId)
+            .ToListAsync();
+            
+        if (searchedTransactions == null || searchedTransactions.Count == 0)
+        {
+            response.Success = false;
+            response.Message = $"No transactions found for the user with ID {userId}.";
+            return response;
+        }
+
+        response.Data = searchedTransactions.Select(t => new CreateUpdateTransaction
+        {
+            TransactionId = t.TransactionId,
+            Amount = t.Amount,
+            Description = t.Description,
+            Date = t.Date,
+            Type = t.Type,
+            CategoryName = t.Category?.Name!, 
+            UserFirstName = t.User?.FirstName, 
+            UserLastName = t.User?.LastName 
+        }).ToList();
+
+        response.Success=true;
+        return response;
+    }
+    public async Task<ServiceResponse<IEnumerable<CreateUpdateTransaction>>> GetTransactionsByCategoryNameAsync(string categoryName, string userId)
+    {
+        var response = new ServiceResponse<IEnumerable<CreateUpdateTransaction>>();
+        if (string.IsNullOrEmpty(userId))
+        {
+            response.Success = false;
+            response.Message = "User ID cannot be null or empty.";
+            return response;
+        }
+
+        if (string.IsNullOrEmpty(categoryName))
+        {
+            response.Success = false;
+            response.Message = "Category Name is missing.";
+            return response;
+        }
+
+        var searchedTransactions = await _context.Transactions
+            .AsNoTracking()
+            .Where(t => t.Category != null && t.Category.Name == categoryName && t.UserId == userId)
+            .ToListAsync();
+
+        if (searchedTransactions == null || searchedTransactions.Count == 0)
+        {
+            response.Success = false;
+            response.Message = $"No transactions found for the category : {categoryName}.";
+            return response;        
+        }
+
+        response.Data = searchedTransactions.Select(
+            t => new CreateUpdateTransaction
+            {
+                TransactionId = t.TransactionId,
+                Amount = t.Amount,
+                Description = t.Description,
+                Date = t.Date,
+                Type = t.Type,
+                CategoryName = t?.Category?.Name!,
+                UserFirstName = t?.User?.FirstName,
+                UserLastName = t?.User?.LastName   
+            }
+        ).ToList();
+
+        response.Success=true;
+        return response;
+    }
+
+    public async Task<ServiceResponse<bool>> DeleteTransactionAsync(int id, string userId)
+    {
+        var response = new ServiceResponse<bool>();
+        var transaction = await _context.Transactions.FindAsync(id);
+
+        if (transaction == null)
+        {
+            response.Success = false;
+            response.Message = $"Transaction with id {id} not found.";
+            return response;
+        }
+
+        if (transaction.UserId != userId)
+        {
+            response.Success = false;
+            response.Message = "You are not authorized to delete this budget.";
+            return response;
+        }
+
+        _context.Transactions.Remove(transaction);
+        await _context.SaveChangesAsync();
+        response.Data=true;
+        return response;
+    }
+
+    private ServiceResponse<CreateUpdateTransaction> GetReponse(bool Success, string? message=null,CreateUpdateTransaction? Data=null)
+    {
+        var response = new ServiceResponse<CreateUpdateTransaction>
+        {
+            Data= Data,
+            Success = Success,
+            Message = message!
+        };
+        return response;
     }
 }

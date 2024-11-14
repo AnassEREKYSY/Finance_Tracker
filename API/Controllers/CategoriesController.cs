@@ -14,50 +14,57 @@ namespace API.Controllers
         [HttpGet("getAll")]
         public async Task<IActionResult> GetCategories()
         {
-            var categories = await _categoryService.GetCategoriesAsync();
-            return Ok(categories);
+            var result = await _categoryService.GetCategoriesAsync();
+            if (!result.Success)
+            {
+                return NotFound(result.Message);
+            }
+            return Ok(result.Data);
         }
 
         [HttpGet("one/{id}")]
         public async Task<IActionResult> GetCategory(int id)
         {
-            var category = await _categoryService.GetCategoryByIdAsync(id);
-            if(category == null) return NotFound("Category not found");
-            return Ok(category);
+            var result = await _categoryService.GetCategoryByIdAsync(id);
+            if (!result.Success)
+            {
+                return NotFound(result.Message);
+            }
+            return Ok(result.Data);
         }
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateCategory([FromBody] CreateUpdateCategory category)
         {
-            if (category == null)
+            var result = await _categoryService.CreateCategoryAsync(category);
+            if (!result.Success)
             {
-                return BadRequest("Category data is required.");
+                return BadRequest(result.Message);
             }
-
-            var createdCategory = await _categoryService.CreateCategoryAsync(category);
-            if(createdCategory == null) return BadRequest("Error while creating");
-            return Ok(createdCategory);        
+            return Ok(result.Data);      
         }
 
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] CreateUpdateCategory category)
         {
-            if (category == null)
+            var result = await _categoryService.UpdateCategoryAsync(id, category);
+            if (!result.Success)
             {
-                return BadRequest("Category data is required.");
+                return NotFound(result.Message);
             }
-
-            var updatedCategory = await _categoryService.UpdateCategoryAsync(id, category);
-            if (updatedCategory == null)return BadRequest("Failed to update Category");
-            return Ok(updatedCategory);
+            return Ok(result.Data);
         }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            var result = await _categoryService.DeleteCategoryAsync(id);
-            if(!result) return BadRequest("Error While deleting the category");
-            return Ok();
+            var response = await _categoryService.DeleteCategoryAsync(id);
+
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return NotFound(response);
         }
     }
 }
