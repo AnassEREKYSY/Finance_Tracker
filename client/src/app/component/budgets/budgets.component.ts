@@ -1,46 +1,70 @@
-import { Component } from '@angular/core';
-import { BudgetComponent } from "./budget/budget.component";
+import { Component, OnInit } from '@angular/core';
+import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-budgets-list',
   standalone: true,
-  imports: [BudgetComponent],
+  imports: [
+    CurrencyPipe,
+    DatePipe,
+    CommonModule,
+    RouterLink
+  ],
   templateUrl: './budgets.component.html',
   styleUrl: './budgets.component.scss'
 })
-export class BudgetsComponent {
-  pieChartData1 = [300, 200, 400, 100, 150];
-  pieChartLabels1 = ['Food', 'Transportation', 'Rent', 'Groceries', 'Travel'];
-  pieChartOptions1 = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as 'top' | 'bottom' | 'left' | 'right' | 'center',
-      },
-    },
-  };
+export class BudgetsComponent implements OnInit {
+  budgets: { category: string; amount: number; startDate: string; endDate: string }[] = [];
 
-  pieChartData2 = [500, 100, 250, 200, 180];
-  pieChartLabels2 = ['Health', 'Entertainment', 'Savings', 'Education', 'Insurance'];
-  pieChartOptions2 = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'right' as 'top' | 'bottom' | 'left' | 'right' | 'center',
-      },
-    },
-  };
+  ngOnInit(): void {
+    this.loadBudgets();
+  }
 
-  pieChartData3 = [600, 300, 200, 150, 100];
-  pieChartLabels3 = ['Rent', 'Utilities', 'Internet', 'Transport', 'Groceries'];
-  pieChartOptions3 = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom' as 'top' | 'bottom' | 'left' | 'right' | 'center',
+  loadBudgets(): void {
+    this.budgets = [
+      { 
+        category: 'Groceries', 
+        amount: 500, 
+        startDate: '2024-10-01', 
+        endDate: '2024-10-31' 
       },
-    },
-  };
+      { 
+        category: 'Rent', 
+        amount: 1000, 
+        startDate: '2024-10-01', 
+        endDate: '2024-10-31' 
+      },
+      { 
+        category: 'Entertainment', 
+        amount: 150, 
+        startDate: '2024-10-01', 
+        endDate: '2024-10-31' 
+      },
+      { 
+        category: 'Utilities', 
+        amount: 200, 
+        startDate: '2024-10-01', 
+        endDate: '2024-10-15' 
+      },
+      { 
+        category: 'Transport', 
+        amount: 100, 
+        startDate: '2024-10-01', 
+        endDate: '2024-10-31' 
+      }
+    ];
+  }
+
+  editBudget(budget: any): void {
+    console.log('Editing budget', budget);
+  }
+
+  deleteBudget(budget: any): void {
+    console.log('Deleting budget', budget);
+  }
+
+  addBudget(): void {
+    console.log('Add New Budget');
+  }
 }
-
-

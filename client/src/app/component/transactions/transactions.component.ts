@@ -10,7 +10,6 @@ import { RouterLink } from '@angular/router';
     DatePipe,
     CommonModule,
     RouterLink
-    
   ],
   templateUrl: './transactions.component.html',
   styleUrl: './transactions.component.scss'
