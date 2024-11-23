@@ -1,14 +1,18 @@
 import { Component } from '@angular/core';
-import { TransactionTableComponent } from "../transaction-table/transaction-table.component";
+import { CommonModule } from '@angular/common';
 import { NavBarComponent } from "../../shared/nav-bar/nav-bar.component";
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [TransactionTableComponent, NavBarComponent],
+  imports: [NavBarComponent, CommonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
+  dropdown: string | null = null;
 
+  toggleDropdown(menu: string) {
+    this.dropdown = this.dropdown === menu ? null : menu;
+  }
 }

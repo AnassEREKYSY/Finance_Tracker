@@ -1,18 +1,21 @@
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-transaction-table',
+  selector: 'app-transactions',
   standalone: true,
   imports: [
     CurrencyPipe,
-     DatePipe,
-     CommonModule
+    DatePipe,
+    CommonModule,
+    RouterLink
+    
   ],
-  templateUrl: './transaction-table.component.html',
-  styleUrl: './transaction-table.component.scss'
+  templateUrl: './transactions.component.html',
+  styleUrl: './transactions.component.scss'
 })
-export class TransactionTableComponent implements OnInit{
+export class TransactionsComponent implements OnInit{
   transactions: { type: string; amount: number; description: string; date: string }[] = [];
 
   ngOnInit(): void {
