@@ -3,11 +3,11 @@ import { RouterModule } from '@angular/router';
 import { NavBarComponent } from "./shared/nav-bar/nav-bar.component";
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterModule, NavBarComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+    selector: 'app-root',
+    standalone:true,
+    imports: [RouterModule, NavBarComponent],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss'
 })
 export class AppComponent {
   title = 'client';

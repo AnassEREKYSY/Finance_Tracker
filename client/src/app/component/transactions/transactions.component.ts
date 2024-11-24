@@ -3,16 +3,15 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-transactions',
-  standalone: true,
-  imports: [
-    CurrencyPipe,
-    DatePipe,
-    CommonModule,
-    RouterLink
-  ],
-  templateUrl: './transactions.component.html',
-  styleUrl: './transactions.component.scss'
+    selector: 'app-transactions',
+    imports: [
+        CurrencyPipe,
+        DatePipe,
+        CommonModule,
+        RouterLink
+    ],
+    templateUrl: './transactions.component.html',
+    styleUrl: './transactions.component.scss'
 })
 export class TransactionsComponent implements OnInit{
   transactions: { type: string; amount: number; description: string; date: string }[] = [];

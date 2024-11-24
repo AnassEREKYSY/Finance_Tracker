@@ -3,16 +3,16 @@ import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-budgets-list',
-  standalone: true,
-  imports: [
-    CurrencyPipe,
-    DatePipe,
-    CommonModule,
-    RouterLink
-  ],
-  templateUrl: './budgets.component.html',
-  styleUrl: './budgets.component.scss'
+    selector: 'app-budgets-list',
+    standalone:true,
+    imports: [
+        CurrencyPipe,
+        DatePipe,
+        CommonModule,
+        RouterLink
+    ],
+    templateUrl: './budgets.component.html',
+    styleUrl: './budgets.component.scss'
 })
 export class BudgetsComponent implements OnInit {
   budgets: { category: string; amount: number; startDate: string; endDate: string }[] = [];

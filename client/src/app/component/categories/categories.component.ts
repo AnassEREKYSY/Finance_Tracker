@@ -1,17 +1,16 @@
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-categories',
-  standalone: true,
-  imports: [
-    CurrencyPipe,
-    CommonModule,
-    RouterLink
-  ],
-  templateUrl: './categories.component.html',
-  styleUrl: './categories.component.scss'
+    selector: 'app-categories',
+    standalone:true,
+    imports: [
+        CommonModule,
+        RouterLink
+    ],
+    templateUrl: './categories.component.html',
+    styleUrl: './categories.component.scss'
 })
 export class CategoriesComponent implements OnInit {
   categories: { name: string; transactionsCount: number }[] = [];
