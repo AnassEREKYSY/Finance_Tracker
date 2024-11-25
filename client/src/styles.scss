@@ -40,3 +40,15 @@ $client-theme: mat.define-theme((
 @tailwind utilities;
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.mat-mdc-snack-bar-container.snack-error{
+  --mdc-snackbar-container-color:red;
+  --mdc-snack-bar-button-color:#fff;
+  --mdc-snackbar-supporting-text-color:#fff;
+}
+
+.mat-mdc-snack-bar-container.snack-success{
+  --mdc-snackbar-container-color:green;
+  --mdc-snack-bar-button-color:#fff;
+  --mdc-snackbar-supporting-text-color:#fff;
+}
