@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Budget } from '../../core/models/Budget';
+import { BudgetService } from '../../core/services/budget.service';
 
 @Component({
     selector: 'app-budgets-list',
@@ -15,56 +17,62 @@ import { RouterLink } from '@angular/router';
     styleUrl: './budgets.component.scss'
 })
 export class BudgetsComponent implements OnInit {
-  budgets: { category: string; amount: number; startDate: string; endDate: string }[] = [];
+  budgetsData!: Array<Budget>;
+  budgetServcie= inject(BudgetService)
+  budgets: { Amount: number; StartDate: Date; EndDate: Date; CategoryName: string }[] = [];
 
   ngOnInit(): void {
-    this.loadBudgets();
+    this.getAllBudgets();
   }
 
-  loadBudgets(): void {
-    this.budgets = [
-      { 
-        category: 'Groceries', 
-        amount: 500, 
-        startDate: '2024-10-01', 
-        endDate: '2024-10-31' 
+  getAllBudgets(){
+    this.budgetServcie.getAll().subscribe({
+      next: (data: Array<Budget>) => {
+        this.budgetsData = data;
+
+        this.budgets = data.map(budget => ({
+          Amount: budget.Amount,
+          StartDate: budget.StartDate,
+          EndDate: budget.EndDate,
+          CategoryName: budget.CategoryName,
+        }));
       },
-      { 
-        category: 'Rent', 
-        amount: 1000, 
-        startDate: '2024-10-01', 
-        endDate: '2024-10-31' 
+      error: (err) => {
+        console.error('Error fetching budgets:', err);
       },
-      { 
-        category: 'Entertainment', 
-        amount: 150, 
-        startDate: '2024-10-01', 
-        endDate: '2024-10-31' 
-      },
-      { 
-        category: 'Utilities', 
-        amount: 200, 
-        startDate: '2024-10-01', 
-        endDate: '2024-10-15' 
-      },
-      { 
-        category: 'Transport', 
-        amount: 100, 
-        startDate: '2024-10-01', 
-        endDate: '2024-10-31' 
-      }
-    ];
+    });
   }
 
-  editBudget(budget: any): void {
-    console.log('Editing budget', budget);
+  editBudget(budget: Budget): void {
+    if (!budget.Id) {
+      console.error('Cannot update a budget without an Id');
+      return;
+    }
+  
+    this.budgetServcie.update(budget, budget.Id).subscribe({
+      next: () => {
+        this.getAllBudgets();
+      },
+      error: (err) => {
+        console.error('Error updating budget:', err);
+      },
+    });
   }
+  
 
   deleteBudget(budget: any): void {
-    console.log('Deleting budget', budget);
-  }
-
-  addBudget(): void {
-    console.log('Add New Budget');
+    if (!budget.Id) {
+      console.error('Cannot delete a budget without an Id');
+      return;
+    }
+  
+    this.budgetServcie.delete(budget.Id).subscribe({
+      next: () => {
+        this.getAllBudgets();
+      },
+      error: (err) => {
+        console.error('Error deleting budget:', err);
+      },
+    });
   }
 }

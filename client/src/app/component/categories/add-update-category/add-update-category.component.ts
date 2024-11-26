@@ -28,7 +28,10 @@ export class AddUpdateCategoryComponent implements OnInit {
 
   onSubmit() {
     if (this.categoryForm.valid) {
-        const categoryModel: Category = this.categoryForm.value;
+        const categoryModel: Category = 
+        {
+          Name:this.categoryForm.value.categoryName,
+        };
   
         this.categoryService.create(categoryModel).subscribe({
           next: () => {

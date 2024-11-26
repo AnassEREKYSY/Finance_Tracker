@@ -32,7 +32,13 @@ export class AddUpdateBudgetComponent implements OnInit {
 
     onSubmit() {
         if (this.budgetForm.valid) {
-            const budgetModel: Budget = this.budgetForm.value;
+            const budgetModel: Budget = 
+            {
+              Amount:this.budgetForm.value.amount,
+              StartDate:this.budgetForm.value.startDate,
+              EndDate:this.budgetForm.value.endDate,
+              CategoryName:this.budgetForm.value.category
+            };
       
             this.budgetService.create(budgetModel).subscribe({
               next: () => {

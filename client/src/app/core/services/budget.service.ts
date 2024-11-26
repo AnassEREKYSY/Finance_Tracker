@@ -18,6 +18,24 @@ export class BudgetService {
       .pipe(catchError(this.handleError));
   }
 
+  update(updatedBudget: Budget, id: string): Observable<Budget> {
+    return this.http
+      .post<Budget>(`${this.apiUrl}/Budgets/update/${id}`, updatedBudget)
+      .pipe(catchError(this.handleError));
+  }
+
+  delete(id: number): Observable<any> {
+    return this.http
+      .delete<any>(`${this.apiUrl}/Budgets/delete`+id)
+      .pipe(catchError(this.handleError));
+  }
+
+  getAll(): Observable<Array<Budget>> {
+    return this.http
+      .get<Array<Budget>>(`${this.apiUrl}/Budgets/getAll`)
+      .pipe(catchError(this.handleError));
+  }
+
   private handleError(error: any): Observable<never> {
     console.error('Error occurred:', error);
     return throwError(() => new Error('Something went wrong.'));
