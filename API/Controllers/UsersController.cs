@@ -1,16 +1,18 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Core.Dtos;
 using Core.Entities;
 using Core.IServices;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController(IUserService userService) : ControllerBase
+    public class UsersController(IUserService userService, IConfiguration configuration) : ControllerBase
     {
         
         [HttpPost("register")]
@@ -29,7 +31,8 @@ namespace API.Controllers
         {
             var result = await userService.LoginUserAsync(loginDto);
 
-            if (!result.Succeeded){
+            if (!result.Succeeded)
+            {
                 if (result.IsLockedOut)
                 {
                     Console.WriteLine("Account is locked out.");
@@ -42,15 +45,20 @@ namespace API.Controllers
                 return Unauthorized("Invalid login attempt");
             }
 
-            return Ok("User logged in successfully");
+            var user = await userService.GetUserByEmailAsync(loginDto.Email);
+
+            var token = GenerateJwtToken(user!);
+
+            return Ok(new { token });
         }
 
+        [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
         {
-            if(!userService.IsUserAuthenticated()) return NoContent();
+            if (!User.Identity.IsAuthenticated) return Unauthorized("User is not authenticated");
 
-            var userId = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized("User ID not found in token");
@@ -122,6 +130,30 @@ namespace API.Controllers
                 return BadRequest(result.Errors);
 
             return Ok();
+        }
+
+
+        private string GenerateJwtToken(AppUser user)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: configuration["Jwt:Issuer"],
+                audience: configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddHours(1),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

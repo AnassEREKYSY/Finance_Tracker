@@ -121,6 +121,7 @@ public class CategoryService(StoreContext _context) : ICategoryService
                 _context.Categories.Remove(category);
                 await _context.SaveChangesAsync();
                 response.Data = true;
+                response.Success = true;
                 return response;
             }
 

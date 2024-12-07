@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Core.Dtos;
 using Core.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -10,16 +11,29 @@ namespace API.Controllers
     public class BudgetsController(IBudgetService _budgetService) : ControllerBase
     {
 
+        [Authorize]
         [HttpGet("getAll")]
         public async Task<IActionResult> GetBudgets()
         {
-            var result = await _budgetService.GetBudgetsAsync(GetUserId());
-            if (!result.Success)
+            try
             {
-                return BadRequest(result.Message);
+                var result = await _budgetService.GetBudgetsAsync(GetUserId());
+                if (!result.Success)
+                {
+                    return BadRequest(result.Message);
+                }
+                return Ok(result.Data);
             }
-            return Ok(result.Data);
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred", error = ex.Message });
+            }
         }
+
 
         [HttpGet("one/{id}")]
         public async Task<IActionResult> GetBudget(int id)
@@ -68,8 +82,22 @@ namespace API.Controllers
 
         private string GetUserId()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException("User is not authenticated.");
-            return userId;
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    throw new UnauthorizedAccessException("User ID not found in claims.");
+                }
+
+                return userId;
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("User is not authenticated.");
+            }
         }
+
+
     }
 }

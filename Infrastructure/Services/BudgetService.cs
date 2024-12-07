@@ -175,6 +175,7 @@ public class BudgetService(StoreContext _context, ICategoryService categoryServi
         _context.Budgets.Remove(budget);
         await _context.SaveChangesAsync();
         response.Data = true;
+        response.Success = true;
 
         return response;
     }

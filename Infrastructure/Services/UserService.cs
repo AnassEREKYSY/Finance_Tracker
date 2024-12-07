@@ -55,6 +55,12 @@ public class UserService(UserManager<AppUser> userManager, SignInManager<AppUser
         return await userManager.FindByIdAsync(userId);
     }
 
+
+    public async Task<AppUser?> GetUserByEmailAsync(string userEmail)
+    {
+        return await userManager.FindByEmailAsync(userEmail);
+    }
+
     public async Task<AppUser?> UpdateUserAsync(string userId, AppUser updatedUser)
     {
         var user = await userManager.FindByIdAsync(userId);
