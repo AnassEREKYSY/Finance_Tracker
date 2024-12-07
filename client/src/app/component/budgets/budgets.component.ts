@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Budget } from '../../core/models/Budget';
 import { BudgetService } from '../../core/services/budget.service';
 
@@ -19,54 +19,56 @@ import { BudgetService } from '../../core/services/budget.service';
 export class BudgetsComponent implements OnInit {
   budgetsData!: Array<Budget>;
   budgetServcie= inject(BudgetService)
-  budgets: { Amount: number; StartDate: Date; EndDate: Date; CategoryName: string }[] = [];
+  budgets: Budget[] = [];
+
+  constructor(private route:Router){}
 
   ngOnInit(): void {
     this.getAllBudgets();
   }
 
-  getAllBudgets(){
+  getAllBudgets() {
     this.budgetServcie.getAll().subscribe({
-      next: (data: Array<Budget>) => {
+      next: (data: Array<any>) => {
+  
         this.budgetsData = data;
-
+  
         this.budgets = data.map(budget => ({
-          Amount: budget.Amount,
-          StartDate: budget.StartDate,
-          EndDate: budget.EndDate,
-          CategoryName: budget.CategoryName,
+          BudgetId: budget.budgetId,
+          Amount: budget.amount,
+          StartDate: new Date(budget.startDate),
+          EndDate: new Date(budget.endDate),
+          CategoryName: budget.categoryName,
         }));
+  
       },
       error: (err) => {
         console.error('Error fetching budgets:', err);
       },
     });
   }
+  
 
   editBudget(budget: Budget): void {
-    if (!budget.Id) {
-      console.error('Cannot update a budget without an Id');
-      return;
-    }
-  
-    this.budgetServcie.update(budget, budget.Id).subscribe({
-      next: () => {
-        this.getAllBudgets();
-      },
-      error: (err) => {
-        console.error('Error updating budget:', err);
-      },
+    this.route.navigate(['budgets/addUpdate'], {
+      queryParams: { 
+        budgetId: budget.BudgetId, 
+        amount: budget.Amount,
+        startDate: new Date(budget.StartDate).toISOString().split('T')[0],
+        endDate: new Date(budget.EndDate).toISOString().split('T')[0],
+        categoryName: budget.CategoryName
+      }
     });
   }
   
 
-  deleteBudget(budget: any): void {
-    if (!budget.Id) {
+  deleteBudget(budget: Budget): void {
+    if (!budget.BudgetId) {
       console.error('Cannot delete a budget without an Id');
       return;
     }
   
-    this.budgetServcie.delete(budget.Id).subscribe({
+    this.budgetServcie.delete(budget.BudgetId).subscribe({
       next: () => {
         this.getAllBudgets();
       },

@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { CategoryService } from '../../core/services/category.service';
+import { Category } from '../../core/models/Category';
+import { SnackBarService } from '../../core/services/snack-bar.service';
 
 @Component({
     selector: 'app-categories',
@@ -13,27 +16,56 @@ import { RouterLink } from '@angular/router';
     styleUrl: './categories.component.scss'
 })
 export class CategoriesComponent implements OnInit {
-  categories: { name: string; transactionsCount: number }[] = [];
+  categories: Category[] = [];
+  categoryService =  inject(CategoryService)
+  snackBarService = inject(SnackBarService)
+
+  constructor(private route:Router){}
 
   ngOnInit(): void {
     this.loadCategories();
   }
 
   loadCategories(): void {
-    this.categories = [
-      { name: 'Rent', transactionsCount: 5 },
-      { name: 'Groceries', transactionsCount: 8 },
-      { name: 'Utilities', transactionsCount: 2 },
-      { name: 'Entertainment', transactionsCount: 3 },
-      { name: 'Transportation', transactionsCount: 6 },
-    ];
+    this.categoryService.getAll().subscribe({
+      next: (data: Category[]) => {
+        console.log('API Response:', data);
+        this.categories = data.map(category => ({
+          categoryId: category.categoryId,
+          name: category.name,
+        }));
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.snackBarService.error('Failed to load categories');
+      }
+    });
   }
 
-  editCategory(item: any): void {
-    console.log('Editing category', item);
+  editCategory(item: Category): void {
+    this.route.navigate(['categories/addUpdate'], {
+      queryParams: { 
+        categoryId: item.categoryId, 
+        name: item.name 
+      }
+    });
   }
 
-  deleteCategory(item: any): void {
-    console.log('Deleting category', item);
+  deleteCategory(item: Category): void {
+    this.categoryService.delete(item.categoryId!).subscribe({
+      next: (response) => {
+        if (response) {
+          this.snackBarService.success('Category deleted successfully');
+          this.loadCategories();
+        } else {
+          this.snackBarService.error('Failed to delete the category');
+        }
+      },
+      error: (error) => {
+        console.error('Error deleting category:', error);
+        this.snackBarService.error('Failed to delete the category');
+      }
+    });
   }
+  
 }

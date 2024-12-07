@@ -14,7 +14,19 @@ export class CategoryService {
 
   create(category: Category): Observable<Category> {
     return this.http
-      .post<Category>(`${this.apiUrl}/Categories/create`, category)
+      .post<Category>(`${this.apiUrl}Categories/create`, category)
+      .pipe(catchError(this.handleError));
+  }
+
+  getAll(): Observable<Category[]> {
+    return this.http
+      .get<Category[]>(`${this.apiUrl}Categories/getAll`)
+      .pipe(catchError(this.handleError));
+  }
+
+  delete(id:number): Observable<any> {
+    return this.http
+      .delete<any>(`${this.apiUrl}Categories/delete/`+id)
       .pipe(catchError(this.handleError));
   }
 

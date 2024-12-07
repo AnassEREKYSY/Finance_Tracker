@@ -21,7 +21,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for(budget of budgetsData; track $index)
+                @for(budget of budgets; track $index)
                 {
                     <tr
                     [ngClass]="{ 'bg-gray-100': $index % 2 === 0, 'bg-white': $index % 2 !== 0 }"

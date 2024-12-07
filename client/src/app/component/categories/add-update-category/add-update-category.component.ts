@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { SnackBarService } from '../../../core/services/snack-bar.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { Category } from '../../../core/models/Category';
+import { ActivatedRoute, Route, Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-update-category',
@@ -16,26 +17,43 @@ export class AddUpdateCategoryComponent implements OnInit {
   categoryForm!: FormGroup;
   snackBarService=  inject(SnackBarService)
   categoryService= inject(CategoryService)
+  categoryId: string | null = null;
+  name: string | null = null;
 
-  constructor(private formBuilder: FormBuilder) 
+  constructor(private formBuilder: FormBuilder,private activatedRoute: ActivatedRoute, private route:Router) 
   { }
 
-    ngOnInit(): void {
-        this.categoryForm = this.formBuilder.group({
-            categoryName: ['', Validators.required]
+  ngOnInit(): void {
+    this.categoryForm = this.formBuilder.group({
+      categoryName: ['', Validators.required]
+    });
+  
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.categoryId = params['categoryId'];
+      this.name = params['name'];
+  
+      if (this.name) {
+        this.categoryForm.patchValue({
+          categoryName: this.name,
         });
-    }
+      }
+    });
+  }
+  
 
   onSubmit() {
     if (this.categoryForm.valid) {
         const categoryModel: Category = 
         {
-          Name:this.categoryForm.value.categoryName,
+          name:this.categoryForm.value.categoryName,
         };
   
         this.categoryService.create(categoryModel).subscribe({
           next: () => {
             this.snackBarService.success('Category created successful');
+            this.route.navigate(['/categories']).then(() => {
+              window.location.reload();
+            });
           },
           error: () => {
             this.snackBarService.error('Category creation failed');

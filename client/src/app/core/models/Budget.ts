@@ -1,5 +1,5 @@
 export type Budget={
-    Id?:string;
+    BudgetId?:number;
     Amount: number;
     StartDate: Date;
     EndDate: Date;

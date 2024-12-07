@@ -80,22 +80,35 @@
         </div>
 
         <div class="flex space-x-6">
-            <button 
-                mat-raised-button 
-                color="primary" 
-                class="px-4 py-2 rounded-full border border-blue-500 hover:bg-white hover:text-blue-400 w-32 bg-blue-400 text-white font-bold text-sm"
-                routerLink="/register"
-            >
-                Register
-            </button>
-            <button 
-                mat-raised-button 
-                color="primary" 
-                class="px-4 py-2 rounded-full border border-blue-500 hover:bg-white hover:text-blue-400 w-32 bg-blue-400 text-white font-bold text-sm"
-                routerLink="/login"
-            >
-                Login
-            </button>
+            @if(userConnected){
+                <button 
+                    mat-raised-button 
+                    color="primary" 
+                    class="px-4 py-2 rounded-full border border-blue-500 hover:bg-white hover:text-blue-400 w-32 bg-blue-400 text-white font-bold text-sm"
+                    (click)="logout()"
+                >
+                    Logout
+                </button>
+            }
+            @else{
+                <button 
+                    mat-raised-button 
+                    color="primary" 
+                    class="px-4 py-2 rounded-full border border-blue-500 hover:bg-white hover:text-blue-400 w-32 bg-blue-400 text-white font-bold text-sm"
+                    routerLink="/register"
+                >
+                    Register
+                </button>
+                <button 
+                    mat-raised-button 
+                    color="primary" 
+                    class="px-4 py-2 rounded-full border border-blue-500 hover:bg-white hover:text-blue-400 w-32 bg-blue-400 text-white font-bold text-sm"
+                    routerLink="/login"
+                >
+                    Login
+                </button>
+            }
+
         </div>
     </div>
 </nav>

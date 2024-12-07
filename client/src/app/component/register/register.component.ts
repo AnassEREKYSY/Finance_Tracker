@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { RegisterService } from '../../core/services/register.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { Register } from '../../core/models/Register';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -26,7 +27,7 @@ export class RegisterComponent implements OnInit {
   private registerService = inject(RegisterService);
   private snackBarService = inject(SnackBarService);
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private route:Router) {}
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
@@ -44,6 +45,9 @@ export class RegisterComponent implements OnInit {
       this.registerService.register(registerModel).subscribe({
         next: () => {
           this.snackBarService.success('Registration successful');
+          this.route.navigate(['/login']).then(() => {
+            window.location.reload();
+          });
         },
         error: () => {
           this.snackBarService.error('Registration failed');
