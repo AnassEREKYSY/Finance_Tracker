@@ -22,13 +22,13 @@ export class BudgetService {
       .pipe(catchError(this.handleError));
   }
 
-  update(updatedBudget: Budget, id: string): Observable<Budget> {
+  update(updatedBudget: Budget, id: number): Observable<Budget> {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
     return this.http
-      .post<Budget>(`${this.apiUrl}Budgets/update/${id}`, updatedBudget, { headers })
+      .put<Budget>(`${this.apiUrl}Budgets/update/${id}`, updatedBudget, { headers })
       .pipe(catchError(this.handleError));
   }
 

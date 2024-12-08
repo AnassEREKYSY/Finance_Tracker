@@ -73,7 +73,6 @@ export class AddUpdateBudgetComponent implements OnInit {
 
     onSubmit() {
       if (this.budgetForm.valid) {
-        // Destructure the form values
         const { amount, startDate, endDate, category } = this.budgetForm.value;
     
         const budgetModel: Budget = {
@@ -82,19 +81,36 @@ export class AddUpdateBudgetComponent implements OnInit {
           EndDate: endDate,
           CategoryName: category,
         };
-    
-        this.budgetService.create(budgetModel).subscribe({
-          next: () => {
-            this.snackBarService.success('Budget created successfully');
-            this.route.navigate(['/budgets']).then(() => {
-              window.location.reload();
-            });
-          },
-          error: (error) => {
-            console.error('Error:', error);
-            this.snackBarService.error('Budget creation failed');
-          },
-        });
+        if(this.budgetId != null)
+        {
+          this.budgetService.update(budgetModel, this.budgetId).subscribe({
+            next: () => {
+              this.snackBarService.success('Budget Updated successfully');
+              this.route.navigate(['/budgets']).then(() => {
+                window.location.reload();
+              });
+            },
+            error: (error) => {
+              console.error('Error:', error);
+              this.snackBarService.error('Budget Update failed');
+            },
+          });
+        }
+        else{
+          this.budgetService.create(budgetModel).subscribe({
+            next: () => {
+              this.snackBarService.success('Budget created successfully');
+              this.route.navigate(['/budgets']).then(() => {
+                window.location.reload();
+              });
+            },
+            error: (error) => {
+              console.error('Error:', error);
+              this.snackBarService.error('Budget creation failed');
+            },
+          });
+        }
+
       } else {
         this.snackBarService.error('Please fill all required fields');
       }

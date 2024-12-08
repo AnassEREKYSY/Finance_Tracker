@@ -17,8 +17,8 @@ export class AddUpdateCategoryComponent implements OnInit {
   categoryForm!: FormGroup;
   snackBarService=  inject(SnackBarService)
   categoryService= inject(CategoryService)
-  categoryId: string | null = null;
   name: string | null = null;
+  categoryId!: number;
 
   constructor(private formBuilder: FormBuilder,private activatedRoute: ActivatedRoute, private route:Router) 
   { }
@@ -47,18 +47,34 @@ export class AddUpdateCategoryComponent implements OnInit {
         {
           name:this.categoryForm.value.categoryName,
         };
-  
-        this.categoryService.create(categoryModel).subscribe({
-          next: () => {
-            this.snackBarService.success('Category created successful');
-            this.route.navigate(['/categories']).then(() => {
-              window.location.reload();
-            });
-          },
-          error: () => {
-            this.snackBarService.error('Category creation failed');
-          },
-        });
+        if(this.categoryId != null)
+        {
+          this.categoryService.update(this.categoryId,categoryModel).subscribe({
+            next: () => {
+              this.snackBarService.success('Category updated successful');
+              this.route.navigate(['/categories']).then(() => {
+                window.location.reload();
+              });
+            },
+            error: () => {
+              this.snackBarService.error('Category update failed');
+            },
+          });
+        }
+        else{
+          this.categoryService.create(categoryModel).subscribe({
+            next: () => {
+              this.snackBarService.success('Category created successful');
+              this.route.navigate(['/categories']).then(() => {
+                window.location.reload();
+              });
+            },
+            error: () => {
+              this.snackBarService.error('Category creation failed');
+            },
+          });
+        }
+
     }else {
         this.snackBarService.error('Please fill all required fields');
     }

@@ -1,9 +1,9 @@
 export type Transaction = 
 {
-    Id?:string;
+    Id?:number;
     Amount : number;
     Description: string;
-    Date:Date;
+    TransactionDate?:Date| null;
     Type:string;
     CategoryName:string;
 }

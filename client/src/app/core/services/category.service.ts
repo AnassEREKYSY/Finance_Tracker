@@ -30,6 +30,12 @@ export class CategoryService {
       .pipe(catchError(this.handleError));
   }
 
+  update(id:number, category:Category): Observable<Category> {
+    return this.http
+      .put<Category>(`${this.apiUrl}Categories/update/`+id, category)
+      .pipe(catchError(this.handleError));
+  }
+
   private handleError(error: any): Observable<never> {
     console.error('Error occurred:', error);
     return throwError(() => new Error('Something went wrong.'));

@@ -3,13 +3,15 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoginService } from '../../core/services/login.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
     selector: 'app-nav-bar',
     standalone:true,
     imports: [
         RouterLink,
-        CommonModule
+        CommonModule,
+        MatIcon,
     ],
     templateUrl: './nav-bar.component.html',
     styleUrl: './nav-bar.component.scss'

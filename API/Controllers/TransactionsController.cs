@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Core.Dtos;
 using Core.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -10,6 +11,7 @@ namespace API.Controllers
     public class TransactionsController(ITransactionService _transactionService) : ControllerBase
     {
 
+        [Authorize]
         [HttpGet("user")]
         public async Task<IActionResult> GetTransactionsByUser()
         {
@@ -21,6 +23,7 @@ namespace API.Controllers
             return Ok(result.Data);
         }
 
+        [Authorize]
         [HttpGet("category/{categoryName}")]
         public async Task<IActionResult> GetTransactionsByCategory(string categoryName)
         {
@@ -32,6 +35,7 @@ namespace API.Controllers
             return Ok(result.Data);
         }
 
+        [Authorize]
         [HttpGet("one/{id}")]
         public async Task<IActionResult> GetTransaction(int id)
         {
@@ -43,6 +47,7 @@ namespace API.Controllers
             return Ok(result.Data);
         }
 
+        [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateTransaction([FromBody] CreateUpdateTransaction transaction)
         {
@@ -67,6 +72,8 @@ namespace API.Controllers
         //     return Ok(updatedTransaction);
         // }
 
+
+        [Authorize]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteTransaction(int id)
         {

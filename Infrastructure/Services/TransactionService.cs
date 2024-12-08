@@ -176,6 +176,7 @@ public class TransactionService(StoreContext _context, ICategoryService category
         _context.Transactions.Remove(transaction);
         await _context.SaveChangesAsync();
         response.Data=true;
+        response.Success = true;
         return response;
     }
 

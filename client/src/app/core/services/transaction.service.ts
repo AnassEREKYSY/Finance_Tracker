@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.developement';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Transaction } from '../models/Transaction';
 import { catchError, Observable, throwError } from 'rxjs';
 
@@ -13,20 +13,42 @@ export class TransactionService {
   constructor(private http: HttpClient) {}
 
   create(transaction: Transaction): Observable<Transaction> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
     return this.http
-      .post<Transaction>(`${this.apiUrl}/Transactions/create`, transaction)
+      .post<Transaction>(`${this.apiUrl}Transactions/create`, transaction, {headers})
+      .pipe(catchError(this.handleError));
+  }
+
+  update(transaction: Transaction, id:number): Observable<Transaction> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http
+      .post<Transaction>(`${this.apiUrl}Transactions/create`, transaction, {headers})
       .pipe(catchError(this.handleError));
   }
   
   delete(id: number): Observable<any> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
     return this.http
-      .delete<any>(`${this.apiUrl}/Transactions/delete`+id)
+      .delete<any>(`${this.apiUrl}Transactions/delete/`+id, {headers})
       .pipe(catchError(this.handleError));
   }
 
   getAll(): Observable<Array<Transaction>> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
     return this.http
-      .get<Array<Transaction>>(`${this.apiUrl}/Transactions/user`)
+      .get<Array<Transaction>>(`${this.apiUrl}Transactions/user`, {headers})
       .pipe(catchError(this.handleError));
   }
 
