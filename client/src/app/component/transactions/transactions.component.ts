@@ -33,7 +33,7 @@ export class TransactionsComponent implements OnInit{
           Id: transaction.transactionId?.toString(),
           Amount: Number(transaction.amount),
           Description: transaction.description || "No Description",
-          TransactionDate: transaction.date ? new Date(transaction.date) : null,
+          TransactionDate: transaction.TransactionDate ? new Date(transaction.TransactionDate) : null,
           Type: transaction.type || "Unknown",
           CategoryName: transaction.categoryName || "Uncategorized",
         }));

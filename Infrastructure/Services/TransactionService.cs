@@ -26,23 +26,26 @@ public class TransactionService(StoreContext _context, ICategoryService category
         {
             return GetReponse(false,"Category Not Found.");
         }
+        Console.WriteLine($"Transaction date before saving: {transaction.Date}");
         var createdTransaction = new Transaction
         {
             UserId = userId,
             User=user,
             Amount= transaction.Amount,
-            Date=DateTime.Now,
+            Date=  DateTime.Parse(transaction.Date.ToString()),
             Description=transaction.Description,
             Type=transaction.Type,
             Category=categoryTransaction,
             CategoryId=categoryTransaction.CategoryId
         };
+        Console.WriteLine($"Transaction object being saved to DB: {createdTransaction.Date}");
         _context.Transactions.Add(createdTransaction);
         await _context.SaveChangesAsync();
         transaction.UserFirstName=user!.FirstName;
         transaction.UserLastName=user!.LastName;
         transaction.TransactionId=createdTransaction.TransactionId;
         transaction.Date=createdTransaction.Date;
+        transaction.CategoryName= categoryTransaction.Name;
         return GetReponse(true,"Budget Created Successfully",transaction);
     }
 
@@ -83,6 +86,7 @@ public class TransactionService(StoreContext _context, ICategoryService category
         }
         var searchedTransactions = await _context.Transactions
             .Where(t => t.UserId == userId)
+            .Include(t => t.Category)
             .ToListAsync();
             
         if (searchedTransactions == null || searchedTransactions.Count == 0)
@@ -99,11 +103,10 @@ public class TransactionService(StoreContext _context, ICategoryService category
             Description = t.Description,
             Date = t.Date,
             Type = t.Type,
-            CategoryName = t.Category?.Name!, 
+            CategoryName = t.Category?.Name ?? "Unknown",
             UserFirstName = t.User?.FirstName, 
             UserLastName = t.User?.LastName 
         }).ToList();
-
         response.Success=true;
         return response;
     }
@@ -190,4 +193,50 @@ public class TransactionService(StoreContext _context, ICategoryService category
         };
         return response;
     }
+
+    public async Task<ServiceResponse<IEnumerable<CreateUpdateTransaction>>> GetTransactionsIntervalTimeAsync(DateTime startDate, DateTime endDate, string categoryName, string userId)
+    {
+        var response = new ServiceResponse<IEnumerable<CreateUpdateTransaction>>();
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            response.Success = false;
+            response.Message = "User ID cannot be null or empty.";
+            return await Task.FromResult(response);
+        }
+
+        var transactions = await _context.Transactions
+            .Where(t => t.UserId == userId && 
+                        t.Date >= startDate && 
+                        t.Date <= endDate && 
+                        t.Category.Name == categoryName)
+            .AsNoTracking()
+            .ToListAsync();
+
+        if (transactions == null || transactions.Count == 0)
+        {
+            response.Success = false;
+            response.Message = $"No transactions found in the specified interval or for the given category '{categoryName}'.";
+        }
+        else
+        {
+            response.Data = transactions.Select(t => new CreateUpdateTransaction
+            {
+                TransactionId = t.TransactionId,
+                Amount = t.Amount,
+                Description = t.Description,
+                Date = t.Date,
+                Type = t.Type,
+                CategoryName = t?.Category?.Name!,
+                UserFirstName = t?.User?.FirstName,
+                UserLastName = t?.User?.LastName
+            }).ToList();
+
+            response.Success = true;
+            response.Message = "Transactions found successfully.";
+        }
+
+        return await Task.FromResult(response);
+    }
+
 }

@@ -97,6 +97,7 @@ export class AddUpdateTransactionComponent implements OnInit{
           // });
         }
         else{
+          console.log(transactionModel)
           this.transactionService.create(transactionModel).subscribe({
             next: () => {
               this.snackBarService.success('Transaction created successful');

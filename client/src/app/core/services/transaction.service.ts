@@ -31,6 +31,16 @@ export class TransactionService {
       .post<Transaction>(`${this.apiUrl}Transactions/create`, transaction, {headers})
       .pipe(catchError(this.handleError));
   }
+
+  getTransactionsForCategory(startDate: Date, endDate:Date, categoryName:string): Observable<Transaction[]> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http
+      .get<Transaction[]>(`${this.apiUrl}Transactions/transactionsInerval/${startDate}/${endDate}/${categoryName}`, {headers})
+      .pipe(catchError(this.handleError));
+  }
   
   delete(id: number): Observable<any> {
     const token = localStorage.getItem('authToken');

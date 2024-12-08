@@ -3,6 +3,8 @@ import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Budget } from '../../core/models/Budget';
 import { BudgetService } from '../../core/services/budget.service';
+import { Transaction } from '../../core/models/Transaction';
+import { TransactionChartComponent } from '../transactions/transaction-chart/transaction-chart.component';
 
 @Component({
     selector: 'app-budgets-list',
@@ -11,7 +13,8 @@ import { BudgetService } from '../../core/services/budget.service';
         CurrencyPipe,
         DatePipe,
         CommonModule,
-        RouterLink
+        RouterLink,
+        TransactionChartComponent
     ],
     templateUrl: './budgets.component.html',
     styleUrl: './budgets.component.scss'
@@ -20,6 +23,7 @@ export class BudgetsComponent implements OnInit {
   budgetsData!: Array<Budget>;
   budgetServcie= inject(BudgetService)
   budgets: Budget[] = [];
+  transactions: Transaction[] = [];
 
   constructor(private route:Router){}
 
@@ -77,4 +81,5 @@ export class BudgetsComponent implements OnInit {
       },
     });
   }
+
 }

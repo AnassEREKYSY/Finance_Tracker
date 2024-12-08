@@ -10,6 +10,16 @@
                 <i class="material-icons text-white text-base">add</i>
               </button>
             </div>
+            <div class="">
+              @for(budget of budgets; track $index)
+              {
+                <app-transaction-chart
+                  [startDate]="budget.StartDate"
+                  [endDate]="budget.EndDate"
+                  [categoryName]="budget.CategoryName"
+                ></app-transaction-chart>
+              }
+            </div>
             <table class="table-auto border-collapse w-full bg-white shadow-md">
               <thead>
                 <tr class="border-b border-gray-200">

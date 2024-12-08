@@ -48,6 +48,18 @@ namespace API.Controllers
         }
 
         [Authorize]
+        [HttpGet("transactionsInerval/{startDate}/{endDate}/{categoryName}")]
+        public async Task<IActionResult> GetTransactionIntervalTime(DateTime startDate, DateTime endDate, string categoryName)
+        {
+            var result = await _transactionService.GetTransactionsIntervalTimeAsync(startDate, endDate, categoryName, GetUserId());
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+            return Ok(result.Data);
+        }
+
+        [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateTransaction([FromBody] CreateUpdateTransaction transaction)
         {
