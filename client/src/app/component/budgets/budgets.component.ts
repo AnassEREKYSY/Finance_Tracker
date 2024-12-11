@@ -5,6 +5,7 @@ import { Budget } from '../../core/models/Budget';
 import { BudgetService } from '../../core/services/budget.service';
 import { Transaction } from '../../core/models/Transaction';
 import { TransactionChartComponent } from '../transactions/transaction-chart/transaction-chart.component';
+import { TransactionService } from '../../core/services/transaction.service';
 
 @Component({
     selector: 'app-budgets-list',
@@ -22,8 +23,8 @@ import { TransactionChartComponent } from '../transactions/transaction-chart/tra
 export class BudgetsComponent implements OnInit {
   budgetsData!: Array<Budget>;
   budgetServcie= inject(BudgetService)
+  transactionServcie= inject(TransactionService)
   budgets: Budget[] = [];
-  transactions: Transaction[] = [];
 
   constructor(private route:Router){}
 
@@ -31,20 +32,43 @@ export class BudgetsComponent implements OnInit {
     this.getAllBudgets();
   }
 
+  getTransactionsForCategory(categoryName: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.transactionServcie.getTransactionForCategory(categoryName).subscribe({
+        next: (transactions: Array<Transaction>) => {
+          const totalExpenses = transactions
+            .filter(transaction => transaction.Type === 'Expense')
+            .reduce((sum, transaction) => sum + transaction.Amount, 0);
+          resolve(totalExpenses);
+        },
+        error: (err) => {
+          console.error('Error fetching transactions for:', categoryName, err);
+          reject(err);
+        },
+      });
+    });
+  }
+  
+
   getAllBudgets() {
     this.budgetServcie.getAll().subscribe({
-      next: (data: Array<any>) => {
+      next: async (data: Array<any>) => {
+        const budgetPromises = data.map(async (budget) => {
+          const totalExpenses = await this.getTransactionsForCategory(budget.categoryName);
+          const rest = budget.amount - totalExpenses;
   
-        this.budgetsData = data;
+          return {
+            BudgetId: budget.budgetId,
+            Amount: budget.amount,
+            StartDate: new Date(budget.startDate),
+            EndDate: new Date(budget.endDate),
+            CategoryName: budget.categoryName,
+            TotalExpenses: totalExpenses,
+            Rest: rest
+          };
+        });
   
-        this.budgets = data.map(budget => ({
-          BudgetId: budget.budgetId,
-          Amount: budget.amount,
-          StartDate: new Date(budget.startDate),
-          EndDate: new Date(budget.endDate),
-          CategoryName: budget.categoryName,
-        }));
-  
+        this.budgets = await Promise.all(budgetPromises);
       },
       error: (err) => {
         console.error('Error fetching budgets:', err);

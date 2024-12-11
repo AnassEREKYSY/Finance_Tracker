@@ -22,6 +22,16 @@ export class TransactionService {
       .pipe(catchError(this.handleError));
   }
 
+  getTransactionForCategory(categoryName: string): Observable<Transaction[]> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http
+      .get<Transaction[]>(`${this.apiUrl}Transactions/category/`+categoryName, {headers})
+      .pipe(catchError(this.handleError));
+  }
+
   update(transaction: Transaction, id:number): Observable<Transaction> {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders({
@@ -32,15 +42,24 @@ export class TransactionService {
       .pipe(catchError(this.handleError));
   }
 
-  getTransactionsForCategory(startDate: Date, endDate:Date, categoryName:string): Observable<Transaction[]> {
+  getTransactionsForCategory(startDate: Date, endDate: Date, categoryName: string): Observable<Transaction[]> {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
+  
+    const formattedStartDate = startDate.toISOString().split('T')[0]; // 'yyyy-MM-dd'
+    const formattedEndDate = endDate.toISOString().split('T')[0]; // 'yyyy-MM-dd'
+  
+    const encodedCategoryName = encodeURIComponent(categoryName);
+  
+    const url = `${this.apiUrl}Transactions/transactionsInerval/${formattedStartDate}/${formattedEndDate}/${encodedCategoryName}`;
+  
     return this.http
-      .get<Transaction[]>(`${this.apiUrl}Transactions/transactionsInerval/${startDate}/${endDate}/${categoryName}`, {headers})
+      .get<Transaction[]>(url, { headers })
       .pipe(catchError(this.handleError));
   }
+  
   
   delete(id: number): Observable<any> {
     const token = localStorage.getItem('authToken');
@@ -63,7 +82,10 @@ export class TransactionService {
   }
 
   private handleError(error: any): Observable<never> {
-    console.error('Error occurred:', error);
-    return throwError(() => new Error('Something went wrong.'));
+    if (error.status === 400 && error.error && error.error.includes('No transactions found')) {
+      return throwError('No transactions found for the given category and date range');
+    } else {
+      return throwError('Something went wrong');
+    }
   }
 }
