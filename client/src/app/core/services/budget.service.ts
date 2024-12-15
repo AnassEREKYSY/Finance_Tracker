@@ -13,7 +13,7 @@ export class BudgetService {
   constructor(private http: HttpClient) {}
 
   create(budget: Budget): Observable<Budget> {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
@@ -23,7 +23,7 @@ export class BudgetService {
   }
 
   update(updatedBudget: Budget, id: number): Observable<Budget> {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
@@ -33,7 +33,7 @@ export class BudgetService {
   }
 
   delete(id: number): Observable<any> {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
@@ -43,7 +43,7 @@ export class BudgetService {
   }
 
   getAll(): Observable<Array<Budget>> {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });

@@ -29,7 +29,6 @@ export class CategoriesComponent implements OnInit {
   loadCategories(): void {
     this.categoryService.getAll().subscribe({
       next: (data: Category[]) => {
-        console.log('API Response:', data);
         this.categories = data.map(category => ({
           categoryId: category.categoryId,
           name: category.name,

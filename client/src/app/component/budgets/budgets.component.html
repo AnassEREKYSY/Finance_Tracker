@@ -1,5 +1,5 @@
 <div class="overflow-x-auto mt-6 shadow-lg">
-    @if(budgetsData && budgetsData.length > 0)
+  @if(budgets && budgets.length > 0)
     {
         <div>
             <div class="flex justify-end mb-4">
@@ -19,6 +19,7 @@
                     [startDate]="budget.StartDate"
                     [endDate]="budget.EndDate"
                     [categoryName]="budget.CategoryName"
+                    [budget]="budget"
                   ></app-transaction-chart>
                 </div>
               }
@@ -30,7 +31,7 @@
                   <th class="px-2 py-2 text-left w-32">Amount</th>
                   <th class="px-4 py-2 text-left w-32">Start Date</th>
                   <th class="px-4 py-2 text-left w-32">End Date</th>
-                  <th class="px-4 py-2 text-left w-32">Total transactions</th>
+                  <th class="px-4 py-2 text-left w-32">Expense</th>
                   <th class="px-4 py-2 text-left w-32">Rest</th>
                   <th class="px-4 py-2 text-left w-32"></th>
 
@@ -47,6 +48,7 @@
                         <td class="px-2 py-2 border-l border-gray-200">{{ budget.CategoryName }}</td>
                         <td class="px-2 py-2 border-l border-gray-200">{{ budget.Amount | currency }}</td>
                         <td class="px-4 py-2 border-l border-gray-200">{{ budget.StartDate | date: 'dd/MM/yyyy' }}</td>
+                        <td class="px-4 py-2 border-l border-gray-200">{{ budget.EndDate | date: 'dd/MM/yyyy' }}</td>
                         <td class="px-4 py-2 border-l border-gray-200">{{ budget.TotalExpenses | currency }}</td>
                         <td class="px-4 py-2 border-l border-gray-200">{{ budget.Rest | currency }}</td>
                         <td class="px-4 py-2"></td>

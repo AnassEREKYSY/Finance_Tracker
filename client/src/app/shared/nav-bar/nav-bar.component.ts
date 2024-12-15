@@ -25,7 +25,7 @@ export class NavBarComponent implements OnInit{
   constructor(private route: Router){}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     if (token) {
       this.userConnected = true;
     } else {
@@ -40,7 +40,7 @@ export class NavBarComponent implements OnInit{
   logout(){
     this.loginService.logOut().subscribe({
       next: () => {
-        localStorage.removeItem('authToken');
+        sessionStorage.removeItem('authToken');
         this.snackBarService.success('Logout successful');
         this.route.navigate(['/home']).then(() => {
           window.location.reload();

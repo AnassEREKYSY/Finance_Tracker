@@ -28,14 +28,13 @@ export class TransactionsComponent implements OnInit{
   loadTransactions(): void {
     this.transactionService.getAll().subscribe({
       next: (data: Array<any>) => {
-        console.log(data)
         this.transactions = data.map(transaction => ({
           Id: transaction.transactionId?.toString(),
-          Amount: Number(transaction.amount),
-          Description: transaction.description || "No Description",
+          amount: Number(transaction.amount),
+          description: transaction.description || "No Description",
           TransactionDate: transaction.TransactionDate ? new Date(transaction.TransactionDate) : null,
-          Type: transaction.type || "Unknown",
-          CategoryName: transaction.categoryName || "Uncategorized",
+          type: transaction.type || "Unknown",
+          categoryName: transaction.categoryName || "Uncategorized",
         }));
       },
       error: (err) => {
@@ -49,10 +48,10 @@ export class TransactionsComponent implements OnInit{
     this.route.navigate(['transactions/addUpdate'], {
       queryParams: { 
         transactionId: item.Id, 
-        amount: item.Amount,
+        amount: item.amount,
         date: new Date(item.TransactionDate!).toISOString().split('T')[0],
-        description: item.Description,
-        categoryName: item.CategoryName
+        description: item.description,
+        categoryName: item.categoryName
       }
     });
   }

@@ -129,13 +129,14 @@ public class TransactionService(StoreContext _context, ICategoryService category
 
         var searchedTransactions = await _context.Transactions
             .AsNoTracking()
+            .Include(t => t.Category)
             .Where(t => t.Category != null && t.Category.Name == categoryName && t.UserId == userId)
             .ToListAsync();
-
         if (searchedTransactions == null || searchedTransactions.Count == 0)
         {
-            response.Success = false;
+            response.Success = true;
             response.Message = $"No transactions found for the category : {categoryName}.";
+            response.Data=null;
             return response;        
         }
 
@@ -147,7 +148,7 @@ public class TransactionService(StoreContext _context, ICategoryService category
                 Description = t.Description,
                 Date = t.Date,
                 Type = t.Type,
-                CategoryName = t?.Category?.Name!,
+                CategoryName = t.Category?.Name ?? "Unknown",
                 UserFirstName = t?.User?.FirstName,
                 UserLastName = t?.User?.LastName   
             }
@@ -211,12 +212,15 @@ public class TransactionService(StoreContext _context, ICategoryService category
                         t.Date <= endDate && 
                         t.Category.Name == categoryName)
             .AsNoTracking()
+            .Include(t => t.Category)
             .ToListAsync();
-
+            
         if (transactions == null || transactions.Count == 0)
         {
-            response.Success = false;
+            response.Success = true;
+            response.Data=null;
             response.Message = $"No transactions found in the specified interval or for the given category '{categoryName}'.";
+            return response;
         }
         else
         {

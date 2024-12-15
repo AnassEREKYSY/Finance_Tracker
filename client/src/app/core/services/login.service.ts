@@ -18,7 +18,7 @@ export class LoginService {
   }
 
   logOut(): Observable<any> {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });

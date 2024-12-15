@@ -13,7 +13,7 @@ export class TransactionService {
   constructor(private http: HttpClient) {}
 
   create(transaction: Transaction): Observable<Transaction> {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
@@ -23,7 +23,7 @@ export class TransactionService {
   }
 
   getTransactionForCategory(categoryName: string): Observable<Transaction[]> {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
@@ -33,7 +33,7 @@ export class TransactionService {
   }
 
   update(transaction: Transaction, id:number): Observable<Transaction> {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
@@ -43,7 +43,7 @@ export class TransactionService {
   }
 
   getTransactionsForCategory(startDate: Date, endDate: Date, categoryName: string): Observable<Transaction[]> {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
@@ -62,7 +62,7 @@ export class TransactionService {
   
   
   delete(id: number): Observable<any> {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
@@ -72,7 +72,7 @@ export class TransactionService {
   }
 
   getAll(): Observable<Array<Transaction>> {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });

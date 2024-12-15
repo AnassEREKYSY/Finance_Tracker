@@ -27,26 +27,26 @@
                 >
                     <td class="px-2 py-2 flex items-center space-x-2">
                         <span
-                        *ngIf="item.Type"
+                        *ngIf="item.type"
                         class="inline-flex items-center justify-center w-5 h-5 rounded-full"
                         [ngClass]="{
-                            'bg-green-400': item.Type === 'income',
-                            'bg-red-400': item.Type === 'expense'
+                            'bg-green-400': item.type === 'income',
+                            'bg-red-400': item.type === 'expense'
                         }"
                         >
                         <i
                             class="material-icons text-white text-sm"
                         >
-                            {{ item.Type === 'Income' ? 'arrow_upward' : 'arrow_downward' }}
+                            {{ item.type === 'Income' ? 'arrow_upward' : 'arrow_downward' }}
                         </i>
                         </span>
-                        <span *ngIf="!item.Type" class="text-gray-500">N/A</span>
+                        <span *ngIf="!item.type" class="text-gray-500">N/A</span>
                     </td>
                   
-                    <td class="px-2 py-2 border-l border-gray-200">{{ item.Amount | currency }}</td>
-                    <td class="px-4 py-2 border-l border-gray-200">{{ item.Description }}</td>
+                    <td class="px-2 py-2 border-l border-gray-200">{{ item.amount | currency }}</td>
+                    <td class="px-4 py-2 border-l border-gray-200">{{ item.description }}</td>
                     <td class="px-4 py-2">{{ item.TransactionDate | date }}</td>
-                    <td class="px-4 py-2">{{ item.CategoryName }}</td>
+                    <td class="px-4 py-2">{{ item.categoryName }}</td>
 
                     <td class="px-4 py-2 flex space-x-2">
                         <span

@@ -43,7 +43,7 @@ export class LoginComponent implements OnInit{
 
       this.loginService.login(loginModel).subscribe({
         next: (response) => {
-          localStorage.setItem('authToken', response.token);
+          sessionStorage.setItem('authToken', response.token);
           this.snackBarService.success('Login successful');
           this.route.navigate(['/home']).then(() => {
             window.location.reload();

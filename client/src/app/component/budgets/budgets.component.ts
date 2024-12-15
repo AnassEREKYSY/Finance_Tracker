@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Budget } from '../../core/models/Budget';
@@ -26,7 +26,7 @@ export class BudgetsComponent implements OnInit {
   transactionServcie= inject(TransactionService)
   budgets: Budget[] = [];
 
-  constructor(private route:Router){}
+  constructor(private route:Router, private cdr: ChangeDetectorRef){}
 
   ngOnInit(): void {
     this.getAllBudgets();
@@ -35,10 +35,23 @@ export class BudgetsComponent implements OnInit {
   getTransactionsForCategory(categoryName: string): Promise<number> {
     return new Promise((resolve, reject) => {
       this.transactionServcie.getTransactionForCategory(categoryName).subscribe({
-        next: (transactions: Array<Transaction>) => {
+        next: (transactions: Array<Transaction> | null) => {
+          if (!transactions || transactions.length === 0) {
+            console.warn(`No transactions found for category: ${categoryName}`);
+            resolve(0);
+            return;
+          }
+  
           const totalExpenses = transactions
-            .filter(transaction => transaction.Type === 'Expense')
-            .reduce((sum, transaction) => sum + transaction.Amount, 0);
+            .filter(transaction => {
+              if (!transaction.type) {
+                console.warn(`Transaction for category ${categoryName} is missing a type`, transaction);
+                return false;
+              }
+              return transaction.type.toLowerCase() === 'expense';
+            })
+            .reduce((sum, transaction) => sum + transaction.amount, 0);
+  
           resolve(totalExpenses);
         },
         error: (err) => {
@@ -49,33 +62,35 @@ export class BudgetsComponent implements OnInit {
     });
   }
   
-
   getAllBudgets() {
     this.budgetServcie.getAll().subscribe({
       next: async (data: Array<any>) => {
         const budgetPromises = data.map(async (budget) => {
-          const totalExpenses = await this.getTransactionsForCategory(budget.categoryName);
-          const rest = budget.amount - totalExpenses;
-  
-          return {
-            BudgetId: budget.budgetId,
-            Amount: budget.amount,
-            StartDate: new Date(budget.startDate),
-            EndDate: new Date(budget.endDate),
-            CategoryName: budget.categoryName,
-            TotalExpenses: totalExpenses,
-            Rest: rest
-          };
+          try {
+            const totalExpenses = await this.getTransactionsForCategory(budget.categoryName);
+            const rest = budget.amount - totalExpenses;
+            return {
+              BudgetId: budget.budgetId,
+              Amount: budget.amount,
+              StartDate: new Date(budget.startDate),
+              EndDate: new Date(budget.endDate),
+              CategoryName: budget.categoryName,
+              TotalExpenses: totalExpenses,
+              Rest: rest
+            };
+          } catch (error) {
+            console.error(`Error calculating budget for category: ${budget.categoryName}`, error);
+            return null;
+          }
         });
-  
-        this.budgets = await Promise.all(budgetPromises);
+        this.budgets = (await Promise.all(budgetPromises)).filter(b => b !== null);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching budgets:', err);
       },
     });
   }
-  
 
   editBudget(budget: Budget): void {
     this.route.navigate(['budgets/addUpdate'], {
@@ -89,7 +104,6 @@ export class BudgetsComponent implements OnInit {
     });
   }
   
-
   deleteBudget(budget: Budget): void {
     if (!budget.BudgetId) {
       console.error('Cannot delete a budget without an Id');

@@ -76,11 +76,11 @@ export class AddUpdateTransactionComponent implements OnInit{
       if (this.transactionForm.valid) {
         const transactionModel: Transaction = 
         {
-          Amount:this.transactionForm.value.amount,
-          Description:this.transactionForm.value.description,
+          amount:this.transactionForm.value.amount,
+          description:this.transactionForm.value.description,
           TransactionDate:this.transactionForm.value.date,
-          Type:this.transactionForm.value.transactionType,
-          CategoryName:this.transactionForm.value.category
+          type:this.transactionForm.value.transactionType,
+          categoryName:this.transactionForm.value.category
         };
         if(this.transactionId!=null)
         {
@@ -97,7 +97,6 @@ export class AddUpdateTransactionComponent implements OnInit{
           // });
         }
         else{
-          console.log(transactionModel)
           this.transactionService.create(transactionModel).subscribe({
             next: () => {
               this.snackBarService.success('Transaction created successful');
