@@ -6,6 +6,7 @@ public class AppUser: IdentityUser
 {
     public string FirstName { get; set; }  = string.Empty;
     public string LastName { get; set; } = string.Empty;
-    public ICollection<Transaction> Transactions { get; set; } = null!;
-    public ICollection<Budget> Budgets { get; set; } = null!;
+    public ICollection<Transaction> Transactions { get; set; }  = new List<Transaction>();
+    public ICollection<Budget> Budgets { get; set; } = new List<Budget>();
+    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

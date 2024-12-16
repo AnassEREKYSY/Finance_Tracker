@@ -66,6 +66,12 @@ namespace Infrastructure.Data
                 .WithOne(b => b.Category)
                 .HasForeignKey(b => b.CategoryId)
                 .OnDelete(DeleteBehavior.SetNull);
+            
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany(u => u.Notifications)
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
