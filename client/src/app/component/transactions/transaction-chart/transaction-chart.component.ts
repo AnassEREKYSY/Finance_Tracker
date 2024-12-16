@@ -75,9 +75,9 @@ export class TransactionChartComponent implements OnInit, OnChanges {
 
   aggregateTransactionData() {
     if (!this.transactions || this.transactions.length === 0) {
-      this.pieChartData.datasets[0].data = [100, 0];
-      this.pieChartLabels = ['Rest', 'Expense'];
-      this.pieChartData.datasets[0].backgroundColor = ['#4CAF50', '#BDBDBD'];
+      this.pieChartData.datasets[0].data = [100, 0]; // Default: All budget remaining
+      this.pieChartLabels = ['Rest', 'Expense']; // Rest first, Expense second
+      this.pieChartData.datasets[0].backgroundColor = ['#4CAF50', '#BDBDBD']; // Green for Rest, Gray for Expense
       return;
     }
   
@@ -85,21 +85,19 @@ export class TransactionChartComponent implements OnInit, OnChanges {
       .filter((t) => t.type && t.type.toLowerCase() === 'expense')
       .reduce((sum, t) => sum + t.amount, 0);
   
-  
     if (expenseSum === 0) {
-      this.pieChartData.datasets[0].data = [100, 0];
-      this.pieChartLabels = ['Rest', 'Expense'];
-      this.pieChartData.datasets[0].backgroundColor = ['#4CAF50', '#BDBDBD'];
+      this.pieChartData.datasets[0].data = [100, 0]; // No expenses yet
+      this.pieChartLabels = ['Rest', 'Expense']; // Rest first, Expense second
+      this.pieChartData.datasets[0].backgroundColor = ['#4CAF50', '#BDBDBD']; // Green for Rest, Gray for Expense
     } else {
-      const remaining = this.budget.Amount - expenseSum;
+      const remaining = Math.max(this.budget.Amount - expenseSum, 0);
   
-      this.pieChartData.datasets[0].data = [expenseSum, Math.max(remaining, 0)];
-      this.pieChartLabels = ['Expense', 'Rest'];
-      this.pieChartData.datasets[0].backgroundColor = ['#BDBDBD', '#4CAF50'];
+      // Ensure the data order matches the labels
+      this.pieChartData.datasets[0].data = [remaining, expenseSum]; // Rest first, Expense second
+      this.pieChartLabels = ['Rest', 'Expense']; // Rest first, Expense second
+      this.pieChartData.datasets[0].backgroundColor = ['#4CAF50', '#BDBDBD']; // Green for Rest, Gray for Expense
     }
   }
-  
-  
   
   
   

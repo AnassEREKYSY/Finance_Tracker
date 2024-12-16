@@ -5,12 +5,13 @@ import { SnackBarService } from '../../../core/services/snack-bar.service';
 import { Transaction } from '../../../core/models/Transaction';
 import { CategoryService } from '../../../core/services/category.service';
 import { Category } from '../../../core/models/Category';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-add-update-transaction',
     imports: [
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        RouterLink
     ],
     templateUrl: './add-update-transaction.component.html',
     styleUrl: './add-update-transaction.component.scss'

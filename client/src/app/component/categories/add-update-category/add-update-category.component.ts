@@ -4,12 +4,12 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { SnackBarService } from '../../../core/services/snack-bar.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { Category } from '../../../core/models/Category';
-import { ActivatedRoute, Route, Router } from '@angular/router';
+import { ActivatedRoute, Route, Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-add-update-category',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './add-update-category.component.html',
   styleUrls: ['./add-update-category.component.scss']
 })

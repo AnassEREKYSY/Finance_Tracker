@@ -5,13 +5,14 @@ import { BudgetService } from '../../../core/services/budget.service';
 import { Budget } from '../../../core/models/Budget';
 import { CategoryService } from '../../../core/services/category.service';
 import { Category } from '../../../core/models/Category';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-add-update-budget',
     standalone:true,
     imports: [
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        RouterLink
     ],
     templateUrl: './add-update-budget.component.html',
     styleUrl: './add-update-budget.component.scss'
