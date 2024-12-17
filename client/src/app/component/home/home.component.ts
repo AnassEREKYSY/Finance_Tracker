@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
+import { NotificationsComponent } from '../notifications/notifications.component';
 
 @Component({
     selector: 'app-home',
     standalone:true,
-    imports: [],
+    imports: [
+      NotificationsComponent
+    ],
     templateUrl: './home.component.html',
     styleUrl: './home.component.scss'
 })

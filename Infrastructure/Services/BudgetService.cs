@@ -180,6 +180,29 @@ public class BudgetService(StoreContext _context, ICategoryService categoryServi
         return response;
     }
 
+    public async void CheckBudgetStatus(string userId){
+        var response = await GetBudgetsAsync(userId);
+
+         if (response.Success)
+        {
+            List<CreateUpdateBudget> budgets = response.Data
+                .Select(createUpdateBudget => new CreateUpdateBudget
+                {
+                    BudgetId = createUpdateBudget.BudgetId,
+                    Amount = createUpdateBudget.Amount,
+                    StartDate = createUpdateBudget.StartDate,
+                    EndDate = createUpdateBudget.EndDate,
+                    CategoryName = createUpdateBudget.CategoryName
+                })
+                .ToList();
+
+            // for each budget call the method to get all transactions 
+            // calculat if the amount of transactions and send a notification to the user 
+            // the user will see the notifications in the home whilte login
+            
+        }
+     }
+
 
     private ServiceResponse<CreateUpdateBudget> GetReponse(bool Success, string? message=null,CreateUpdateBudget? Data=null)
     {

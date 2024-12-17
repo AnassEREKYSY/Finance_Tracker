@@ -12,6 +12,7 @@ public class NotificationService(StoreContext _context) : INotificationService
     {
         if (notification != null)
         {
+            notification.IsRead=false;
             _context.Notifications.Add(notification);
             await _context.SaveChangesAsync();
             return notification;
