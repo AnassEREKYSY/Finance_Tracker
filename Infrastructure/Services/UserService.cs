@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure.Services;
 
-public class UserService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,IHttpContextAccessor httpContextAccessor) : IUserService
+public class UserService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,IHttpContextAccessor httpContextAccessor, IBudgetService _budgetService) : IUserService
 {
 
     public async Task<AppUser?> GetUserProfileAsync(string userId)
@@ -23,8 +23,18 @@ public class UserService(UserManager<AppUser> userManager, SignInManager<AppUser
 
     public async Task<SignInResult> LoginUserAsync(LoginDto loginDto)
     {
-        return await signInManager.PasswordSignInAsync(
+        var signInResult = await signInManager.PasswordSignInAsync(
             loginDto.Email, loginDto.Password, isPersistent: true, lockoutOnFailure: true);
+        if (signInResult.Succeeded)
+        {
+            var user = await userManager.FindByEmailAsync(loginDto.Email);
+            if (user != null)
+            {
+                _budgetService.CheckBudgetStatus(user.Id);
+            }
+        }
+
+        return signInResult;
     }
 
     public async Task LogOutAsync()

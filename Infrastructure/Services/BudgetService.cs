@@ -8,7 +8,7 @@ using Core.Response;
 
 namespace Infrastructure.Services;
 
-public class BudgetService(StoreContext _context, ICategoryService categoryService, IUserService userService) : IBudgetService
+public class BudgetService(StoreContext _context, ICategoryService categoryService, IUserService userService, ITransactionService transactionService, INotificationService notificationService) : IBudgetService
 {
     public async Task<ServiceResponse<CreateUpdateBudget>> CreateBudgetAsync(CreateUpdateBudget budget, string userId)
     {
@@ -152,7 +152,6 @@ public class BudgetService(StoreContext _context, ICategoryService categoryServi
 
         return GetReponse(true,"Badget Updated Successfully",budgetDto);
     }
-
     public async Task<ServiceResponse<bool>> DeleteBudgetAsync(int id, string userId)
     {
         var response = new ServiceResponse<bool>();
@@ -179,9 +178,9 @@ public class BudgetService(StoreContext _context, ICategoryService categoryServi
 
         return response;
     }
-
     public async void CheckBudgetStatus(string userId){
         var response = await GetBudgetsAsync(userId);
+        decimal totalAmount = 0;
 
          if (response.Success)
         {
@@ -196,10 +195,28 @@ public class BudgetService(StoreContext _context, ICategoryService categoryServi
                 })
                 .ToList();
 
-            // for each budget call the method to get all transactions 
-            // calculat if the amount of transactions and send a notification to the user 
-            // the user will see the notifications in the home whilte login
-            
+            foreach (var budget in budgets)
+            {
+                var transactionResponse = await transactionService.GetTransactionsIntervalTimeAsync(
+                                                                    budget.StartDate, 
+                                                                    budget.EndDate, 
+                                                                    budget.CategoryName, 
+                                                                    userId);
+
+                if (transactionResponse.Success && transactionResponse.Data != null)
+                {
+                    foreach (var transaction in transactionResponse.Data)
+                    {
+                        totalAmount += transaction.Amount;
+                    }
+                }
+                decimal percentBudgetAmount = totalAmount / budget.Amount * 100;
+                var notification = new CreateUpdateNotifications{
+                    Message=$"You have spent {percentBudgetAmount:F2}% of your budget.",
+
+                };
+                await notificationService.CreateNotificationAsync(notification,userId);                                                  
+            }
         }
      }
 

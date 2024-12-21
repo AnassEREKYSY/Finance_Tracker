@@ -13,4 +13,5 @@ public interface IBudgetService
     Task<ServiceResponse<IEnumerable<CreateUpdateBudget>>> GetBudgetsAsync(string userId);
     Task<ServiceResponse<CreateUpdateBudget>> UpdateBudgetAsync(int id, CreateUpdateBudget budget, string userId);
     Task<ServiceResponse<bool>> DeleteBudgetAsync(int id, string userId);
+    void CheckBudgetStatus(string userId);
 }

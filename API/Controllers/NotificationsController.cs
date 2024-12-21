@@ -11,21 +11,6 @@ namespace API.Controllers
     [ApiController]
     public class NotificationsController(INotificationService _notificationService) : ControllerBase
     {
-
-        [Authorize]
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateNotification([FromBody] Notification notification)
-        {
-            if (notification == null)
-            {
-                return BadRequest("Notification data is required.");
-            }
-
-            var createdNotification = await _notificationService.CreateNotificationAsync(notification);
-            if(createdNotification == null) return BadRequest("Error while creating");
-            return Ok(createdNotification);        
-        }
-
         [Authorize]
         [HttpGet("user")]
         public async Task<IActionResult> GetNotificationsForUser()
