@@ -42,6 +42,16 @@ export class NotificationsService {
       .pipe(catchError(this.handleError));
   }
 
+  delete(id:number): Observable<Boolean> {
+    const token = sessionStorage.getItem('authToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http
+      .delete<Boolean>(`${this.apiUrl}Notifications/delete/`+id,{ headers })
+      .pipe(catchError(this.handleError));
+  }
+
   private handleError(error: any): Observable<never> {
        console.error('Error occurred:', error);
        return throwError(() => new Error('Something went wrong.'));

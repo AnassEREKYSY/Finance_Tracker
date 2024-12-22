@@ -11,8 +11,8 @@ public class Transaction
     public DateTime Date { get; set; }
     public string Description { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
-    public int CategoryId { get; set; }
-    public Category Category { get; set; } = null!;
+    public int? CategoryId { get; set; }
+    public Category? Category { get; set; } = null!;
     public AppUser User { get; set; } = null!;
 }
 

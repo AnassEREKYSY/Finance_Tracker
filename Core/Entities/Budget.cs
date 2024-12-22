@@ -1,4 +1,6 @@
 using System;
+using Core.Dtos;
+using Core.Response;
 
 namespace Core.Entities;
 

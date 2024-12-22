@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20241111145911_UpdateEntities")]
-    partial class UpdateEntities
+    [Migration("20241222160445_init_1")]
+    partial class init_1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -190,6 +190,9 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"));
 
+                    b.Property<int?>("BudgetId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -205,6 +208,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("NotificationId");
+
+                    b.HasIndex("BudgetId");
 
                     b.HasIndex("UserId");
 
@@ -226,7 +231,7 @@ namespace Infrastructure.Migrations
                     b.Property<string>("AppUserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Date")
@@ -236,8 +241,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -396,7 +402,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Category", "Category")
                         .WithMany("Budgets")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Core.Entities.AppUser", "User")
@@ -423,11 +429,18 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.Notification", b =>
                 {
-                    b.HasOne("Core.Entities.AppUser", "User")
+                    b.HasOne("Core.Entities.Budget", "Budget")
                         .WithMany()
+                        .HasForeignKey("BudgetId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Core.Entities.AppUser", "User")
+                        .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Budget");
 
                     b.Navigation("User");
                 });
@@ -441,8 +454,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Category", "Category")
                         .WithMany("Transactions")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Core.Entities.AppUser", "User")
                         .WithMany()
@@ -509,6 +521,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entities.AppUser", b =>
                 {
                     b.Navigation("Budgets");
+
+                    b.Navigation("Notifications");
 
                     b.Navigation("Transactions");
                 });

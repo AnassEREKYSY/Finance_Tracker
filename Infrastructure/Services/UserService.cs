@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure.Services;
 
-public class UserService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,IHttpContextAccessor httpContextAccessor, IBudgetService _budgetService) : IUserService
+public class UserService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,IHttpContextAccessor httpContextAccessor,Lazy<IBudgetService> budgetService,Lazy<ITransactionService> transactionService, Lazy<INotificationService> notificationService) : IUserService
 {
 
     public async Task<AppUser?> GetUserProfileAsync(string userId)
@@ -23,18 +23,8 @@ public class UserService(UserManager<AppUser> userManager, SignInManager<AppUser
 
     public async Task<SignInResult> LoginUserAsync(LoginDto loginDto)
     {
-        var signInResult = await signInManager.PasswordSignInAsync(
+        return  await signInManager.PasswordSignInAsync(
             loginDto.Email, loginDto.Password, isPersistent: true, lockoutOnFailure: true);
-        if (signInResult.Succeeded)
-        {
-            var user = await userManager.FindByEmailAsync(loginDto.Email);
-            if (user != null)
-            {
-                _budgetService.CheckBudgetStatus(user.Id);
-            }
-        }
-
-        return signInResult;
     }
 
     public async Task LogOutAsync()
@@ -95,4 +85,47 @@ public class UserService(UserManager<AppUser> userManager, SignInManager<AppUser
         var user = await userManager.FindByIdAsync(userId) ?? throw new KeyNotFoundException("User Id : "+userId+" not found");
         return await userManager.DeleteAsync(user);
     }
+
+    public async Task  CheckBudgetStatus(string userId){
+        var response = await budgetService.Value.GetBudgetsAsync(userId);
+        decimal totalAmount = 0;
+
+         if (response.Success)
+        {
+            List<CreateUpdateBudget> budgets = response.Data
+                .Select(createUpdateBudget => new CreateUpdateBudget
+                {
+                    BudgetId = createUpdateBudget.BudgetId,
+                    Amount = createUpdateBudget.Amount,
+                    StartDate = createUpdateBudget.StartDate,
+                    EndDate = createUpdateBudget.EndDate,
+                    CategoryName = createUpdateBudget.CategoryName
+                })
+                .ToList();
+
+            foreach (var budget in budgets)
+            {
+                var transactionResponse = await transactionService.Value.GetTransactionsIntervalTimeAsync(
+                                                                    budget.StartDate, 
+                                                                    budget.EndDate, 
+                                                                    budget.CategoryName, 
+                                                                    userId);
+
+                if (transactionResponse.Success && transactionResponse.Data != null)
+                {
+                    foreach (var transaction in transactionResponse.Data)
+                    {
+                        totalAmount += transaction.Amount;
+                    }
+                }
+                decimal percentBudgetAmount = totalAmount / budget.Amount * 100;
+                var notification = new CreateUpdateNotifications{
+                    Message=$"You have spent {percentBudgetAmount:F2}% of your budget.",
+
+                };
+                await notificationService.Value.CreateNotificationAsync(notification,userId, budget.BudgetId);                                                  
+            }
+        }
+    }
+
 }

@@ -187,6 +187,9 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"));
 
+                    b.Property<int?>("BudgetId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -202,6 +205,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("NotificationId");
+
+                    b.HasIndex("BudgetId");
 
                     b.HasIndex("UserId");
 
@@ -223,7 +228,7 @@ namespace Infrastructure.Migrations
                     b.Property<string>("AppUserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Date")
@@ -394,7 +399,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Category", "Category")
                         .WithMany("Budgets")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Core.Entities.AppUser", "User")
@@ -421,11 +426,18 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.Notification", b =>
                 {
+                    b.HasOne("Core.Entities.Budget", "Budget")
+                        .WithMany()
+                        .HasForeignKey("BudgetId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Core.Entities.AppUser", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Budget");
 
                     b.Navigation("User");
                 });
@@ -439,8 +451,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Category", "Category")
                         .WithMany("Transactions")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Core.Entities.AppUser", "User")
                         .WithMany()

@@ -12,6 +12,7 @@ import { NotificationsComponent } from '../notifications/notifications.component
 })
 export class HomeComponent {
   dropdown: string | null = null;
+  isAuthenticated = sessionStorage.getItem('authToken') != null ?true:false;
 
   toggleDropdown(menu: string) {
     this.dropdown = this.dropdown === menu ? null : menu;

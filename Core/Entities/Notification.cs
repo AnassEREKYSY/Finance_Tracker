@@ -10,6 +10,8 @@ public class Notification
     public bool IsRead { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public AppUser User { get; set; } = null!;
+    public int? BudgetId { get; set; } 
+    public Budget? Budget { get; set; }
     
 }
 

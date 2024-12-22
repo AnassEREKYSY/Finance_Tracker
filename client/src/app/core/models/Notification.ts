@@ -1,6 +1,6 @@
 export type Notification = {
-    NotificationId?:number
-    Message: string
-    IsRead: boolean
-    CreatedAt: Date;
+    notificationId?:number
+    message: string
+    isRead: boolean
+    createdAt: Date;
 }

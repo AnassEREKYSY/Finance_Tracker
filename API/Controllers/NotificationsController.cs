@@ -15,9 +15,12 @@ namespace API.Controllers
         [HttpGet("user")]
         public async Task<IActionResult> GetNotificationsForUser()
         {
-            var notifications = await _notificationService.GetNotificationsByUserIdAsync(GetUserId());
-            if(notifications == null) return BadRequest("Error while Getting the norifications");
-            return Ok(notifications);        
+            var response = await _notificationService.GetNotificationsByUserIdAsync(GetUserId());
+            if(!response.Success)
+            {
+                return BadRequest("Error while Getting the norifications");
+            }
+            return Ok(response.Data);        
         }
 
         [Authorize]
@@ -26,6 +29,18 @@ namespace API.Controllers
         {
             var result = await _notificationService.MarkAsReadAsync(id);
             return result ? Ok() : NotFound();
+        }
+
+        [Authorize]
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteNotification(int id)
+        {
+            var result =await _notificationService.DeleteAsync(id,GetUserId());
+            if (!result.Success)
+            {
+                return NotFound(result.Message);
+            }
+            return Ok(result.Data);
         }
 
         private string GetUserId()

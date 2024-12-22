@@ -1,15 +1,15 @@
 <div class="overflow-x-auto mt-6 shadow-lg">
+  <div class="flex justify-end mb-4">
+    <button 
+      class="px-3 py-1.5 rounded-full bg-gray-400 text-white  border border-gray-400 hover:bg-white hover:text-gray-400 hover:border-gray-400 cursor-pointer"
+      routerLink="/budgets/addUpdate"
+    >
+      Add
+    </button>
+  </div>
   @if(budgets && budgets.length > 0)
     {
         <div>
-            <div class="flex justify-end mb-4">
-              <button 
-                class="px-3 py-1.5 rounded-full bg-gray-400 text-white  border border-gray-400 hover:bg-white hover:text-gray-400 hover:border-gray-400 cursor-pointer"
-                routerLink="/budgets/addUpdate"
-              >
-                Add
-              </button>
-            </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
               @for(budget of budgets; track $index)
               {

@@ -17,4 +17,5 @@ public interface IUserService
     Task<AppUser?> UpdateUserAsync(string userId, AppUser updatedUser);
     Task<IdentityResult> DeleteUserAsync(string userId);
     Task<AppUser?> GetUserByEmailAsync(string userEmail);
+    Task CheckBudgetStatus(string userId);
 }

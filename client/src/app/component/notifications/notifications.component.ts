@@ -22,12 +22,19 @@ export class NotificationsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAllNotifcations();
+    console.log(this.notifications)
   }
 
   loadAllNotifcations() {
     this.notificationService.getAll().subscribe({
-      next: (notifications: Array<any>) => {
-        this.notifications = notifications;
+      next: (data: Array<any>) => {
+        console.log('Notifications:', data);
+        this.notifications = data.map(n => ({
+          notificationId: n.notificationId,
+          message: n.message,
+          isRead:n.isRead,
+          createdAt:n.createdAt
+        }));
       },
       error: (err) => {
         console.error('Error loading notifications:', err);
@@ -40,14 +47,32 @@ export class NotificationsComponent implements OnInit {
     this.notificationService.markAsRead(id).subscribe({
       next: () => {
         this.notifications = this.notifications.map(notification =>
-          notification.NotificationId === id 
+          notification.notificationId === id 
             ? { ...notification, IsRead: true }
             : notification
         );
         this.sanckBarService.success('Notification marked as read.');
+        this.loadAllNotifcations();
       },
       error: (err) => {
         console.error('Error marking notification as read:', err);
+        this.sanckBarService.error('Failed to mark notification as read. Please try again.');
+      }
+    });
+  }
+
+  delete(id:number){
+    this.notificationService.delete(id).subscribe({
+      next: (response) => {
+        if (response) {
+          this.sanckBarService.success('Notification deleted successfully.');
+          this.loadAllNotifcations();
+        } else {
+          this.sanckBarService.error('Failed to delete the notiification');
+        }
+      },
+      error: (err) => {
+        console.error('Error deleting notification :', err);
         this.sanckBarService.error('Failed to mark notification as read. Please try again.');
       }
     });

@@ -5,6 +5,7 @@ using Core.Dtos;
 using Core.Entities;
 using Core.IServices;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -12,7 +13,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController(IUserService userService, IConfiguration configuration) : ControllerBase
+    public class UsersController(IUserService userService, IConfiguration configuration,UserManager<AppUser> userManager) : ControllerBase
     {
         
         [HttpPost("register")]
@@ -31,8 +32,16 @@ namespace API.Controllers
         {
             var result = await userService.LoginUserAsync(loginDto);
 
+            if(result.Succeeded){
+                var userResult = await userManager.FindByEmailAsync(loginDto.Email);
+                if (userResult != null)
+                {
+                    await userService.CheckBudgetStatus(userResult.Id);
+                }
+            }
             if (!result.Succeeded)
             {
+                Console.WriteLine($"Login failed: {result}");
                 if (result.IsLockedOut)
                 {
                     Console.WriteLine("Account is locked out.");

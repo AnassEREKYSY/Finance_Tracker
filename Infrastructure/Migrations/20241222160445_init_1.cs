@@ -5,7 +5,7 @@
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateInitialeCreateMigration : Migration
+    public partial class init_1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
