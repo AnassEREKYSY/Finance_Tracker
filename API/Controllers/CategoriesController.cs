@@ -1,6 +1,7 @@
 using Core.Dtos;
 using Core.Entities;
 using Core.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,7 +11,7 @@ namespace API.Controllers
     [ApiController]
     public class CategoriesController(ICategoryService _categoryService) : ControllerBase
     {
-
+        [Authorize]
         [HttpGet("getAll")]
         public async Task<IActionResult> GetCategories()
         {
@@ -22,6 +23,7 @@ namespace API.Controllers
             return Ok(result.Data);
         }
 
+        [Authorize]
         [HttpGet("one/{id}")]
         public async Task<IActionResult> GetCategory(int id)
         {
@@ -33,6 +35,7 @@ namespace API.Controllers
             return Ok(result.Data);
         }
 
+        [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateCategory([FromBody] CreateUpdateCategory category)
         {
@@ -44,6 +47,7 @@ namespace API.Controllers
             return Ok(result.Data);      
         }
 
+        [Authorize]
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] CreateUpdateCategory category)
         {
@@ -55,6 +59,7 @@ namespace API.Controllers
             return Ok(result.Data);
         }
 
+        [Authorize]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {

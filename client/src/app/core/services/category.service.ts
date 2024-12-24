@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.developement';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { Category } from '../models/Category';
 
@@ -19,8 +19,13 @@ export class CategoryService {
   }
 
   getAll(): Observable<Category[]> {
+    const token = sessionStorage.getItem('authToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    
     return this.http
-      .get<Category[]>(`${this.apiUrl}Categories/getAll`)
+      .get<Category[]>(`${this.apiUrl}Categories/getAll`, { headers })
       .pipe(catchError(this.handleError));
   }
 

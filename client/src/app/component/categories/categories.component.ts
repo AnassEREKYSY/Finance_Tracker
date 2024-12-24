@@ -41,30 +41,30 @@ export class CategoriesComponent implements OnInit {
     });
   }
 
-  editCategory(item: Category): void {
-    this.route.navigate(['categories/addUpdate'], {
-      queryParams: { 
-        categoryId: item.categoryId, 
-        name: item.name 
-      }
-    });
-  }
+  // editCategory(item: Category): void {
+  //   this.route.navigate(['categories/addUpdate'], {
+  //     queryParams: { 
+  //       categoryId: item.categoryId, 
+  //       name: item.name 
+  //     }
+  //   });
+  // }
 
-  deleteCategory(item: Category): void {
-    this.categoryService.delete(item.categoryId!).subscribe({
-      next: (response) => {
-        if (response) {
-          this.snackBarService.success('Category deleted successfully');
-          this.loadCategories();
-        } else {
-          this.snackBarService.error('Failed to delete the category');
-        }
-      },
-      error: (error) => {
-        console.error('Error deleting category:', error);
-        this.snackBarService.error('Failed to delete the category');
-      }
-    });
-  }
+  // deleteCategory(item: Category): void {
+  //   this.categoryService.delete(item.categoryId!).subscribe({
+  //     next: (response) => {
+  //       if (response) {
+  //         this.snackBarService.success('Category deleted successfully');
+  //         this.loadCategories();
+  //       } else {
+  //         this.snackBarService.error('Failed to delete the category');
+  //       }
+  //     },
+  //     error: (error) => {
+  //       console.error('Error deleting category:', error);
+  //       this.snackBarService.error('Failed to delete the category');
+  //     }
+  //   });
+  // }
   
 }

@@ -1,19 +1,19 @@
 <div class="overflow-x-auto mt-6 shadow-lg max-w-4xl mx-auto">
-    <div class="flex justify-end mb-4">
+    <!-- <div class="flex justify-end mb-4">
         <button 
           class="px-3 py-1.5 rounded-full bg-gray-400 text-white  border border-gray-400 hover:bg-white hover:text-gray-400 hover:border-gray-400 cursor-pointer"
           routerLink="/categories/addUpdate"
         >
           Add
         </button>
-    </div>
+    </div> -->
     @if(categories && categories.length > 0)
     {
       <table class="table-auto border-collapse w-full bg-white shadow-md">
         <thead>
           <tr class="border-b border-gray-200">
             <th class="px-2 py-2 text-left w-40">Category</th>
-            <th class="px-2 py-2 text-left w-32">Actions</th>
+            <!-- <th class="px-2 py-2 text-left w-32">Actions</th> -->
           </tr>
         </thead>
         <tbody>
@@ -24,7 +24,7 @@
               class="border-b border-gray-200"
             >
               <td class="px-2 py-2">{{ category.name }}</td>
-              <td class="px-4 py-2 flex space-x-2">
+              <!-- <td class="px-4 py-2 flex space-x-2">
                 <span
                   class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-400 hover:bg-blue-500 cursor-pointer"
                   (click)="editCategory(category)"
@@ -37,7 +37,7 @@
                 >
                   <i class="material-icons text-white text-2xl">delete</i>
                 </span>
-              </td>
+              </td> -->
             </tr>
           }
   
