@@ -132,7 +132,15 @@ public class CategoryService(StoreContext _context) : ICategoryService
 
     public async Task<Category> GetCategoryByNameAsync(string Name)
     {
-        var category = await _context.Categories.Where(c => c.Name == Name).FirstOrDefaultAsync();
-        return category ?? throw new KeyNotFoundException($"Category with name {Name} not found.");
+        if (string.IsNullOrWhiteSpace(Name))
+            throw new ArgumentException("Name cannot be null or empty.", nameof(Name));
+
+        var normalizedName = Name.ToLower().Replace(" ", "");
+
+        var category = await _context.Categories
+            .Where(c => c.Name.ToLower().Replace(" ", "") == normalizedName)
+            .FirstOrDefaultAsync();
+
+        return category ?? throw new KeyNotFoundException($"Category with name '{Name}' not found.");
     }
 }

@@ -24,32 +24,34 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader());
 });
 
-builder.Services.AddDbContext<StoreContext>(opt=>{
+builder.Services.AddDbContext<StoreContext>(opt =>
+{
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
 builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<StoreContext>()
     .AddDefaultTokenProviders();
 
-    // Add JWT Authentication
+// Add JWT Authentication
 builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"], // from appsettings.json
-            ValidAudience = builder.Configuration["Jwt:Audience"], // from appsettings.json
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"])) // from appsettings.json
-        };
-    });
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"], // from appsettings.json
+        ValidAudience = builder.Configuration["Jwt:Audience"], // from appsettings.json
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"])) // from appsettings.json
+    };
+});
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -72,15 +74,8 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var userManager = services.GetRequiredService<UserManager<AppUser>>();
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-
-    await SeedRolesAsync(roleManager);
-    await SeedAdminUserAsync(userManager, roleManager);
-}
+// Seed roles and admin user
+await SeedRolesAndAdmin(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -93,7 +88,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAllOrigins");
 
-app.UseAuthentication(); 
+app.UseAuthentication();
 
 app.UseAuthorization();
 
@@ -101,12 +96,14 @@ app.MapControllers();
 
 app.Run();
 
-
-
-static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
+static async Task SeedRolesAndAdmin(IServiceProvider serviceProvider)
 {
-    var roles = new[] { "Admin", "User" };
+    using var scope = serviceProvider.CreateScope();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
 
+    // Seed Roles - Check if role already exists before adding
+    var roles = new[] { "Admin", "User" };
     foreach (var role in roles)
     {
         var roleExist = await roleManager.RoleExistsAsync(role);
@@ -115,28 +112,27 @@ static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
             await roleManager.CreateAsync(new IdentityRole(role));
         }
     }
-}
 
-static async Task SeedAdminUserAsync(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
-{
+    // Seed Admin User - Check if admin user already exists before creating
     var adminEmail = "admin@test.com";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    var adminPassword = "Pa$$w0rd";
 
-    if (adminUser == null)
+    var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
+    if (existingAdmin == null)
     {
-        var user = new AppUser
+        var adminUser = new AppUser
         {
             UserName = adminEmail,
             Email = adminEmail,
+            EmailConfirmed = true,
             FirstName = "Admin",
             LastName = "User"
         };
 
-        var result = await userManager.CreateAsync(user, "Pa$$w0rd");
-
+        var result = await userManager.CreateAsync(adminUser, adminPassword);
         if (result.Succeeded)
         {
-            await userManager.AddToRoleAsync(user, "Admin");
+            await userManager.AddToRoleAsync(adminUser, "Admin");
         }
     }
 }

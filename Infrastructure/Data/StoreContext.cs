@@ -1,5 +1,6 @@
 using Core.Entities;
 using Core.IData;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -73,14 +74,14 @@ namespace Infrastructure.Data
                 .HasMany(c => c.Transactions)
                 .WithOne(t => t.Category)
                 .HasForeignKey(t => t.CategoryId)
-                .OnDelete(DeleteBehavior.SetNull); // SetNull on delete
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Category - Budget relationship
             modelBuilder.Entity<Category>()
                 .HasMany(c => c.Budgets)
                 .WithOne(b => b.Category)
                 .HasForeignKey(b => b.CategoryId)
-                .OnDelete(DeleteBehavior.Restrict); // Restrict delete on Category
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Notification - User and Budget relationship
             modelBuilder.Entity<Notification>()
@@ -94,6 +95,34 @@ namespace Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(n => n.BudgetId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Seed Categories
+            modelBuilder.Entity<Category>().HasData(
+                new Category { CategoryId = 1, Name = "Business & Expenses" },
+                new Category { CategoryId = 2, Name = "Childcare & Education" },
+                new Category { CategoryId = 3, Name = "Clothing & Accessories" },
+                new Category { CategoryId = 4, Name = "Debt" },
+                new Category { CategoryId = 5, Name = "Dining Out" },
+                new Category { CategoryId = 6, Name = "Education" },
+                new Category { CategoryId = 7, Name = "Entertainment" },
+                new Category { CategoryId = 8, Name = "Fuel" },
+                new Category { CategoryId = 9, Name = "Gifts & Donations" },
+                new Category { CategoryId = 10, Name = "Groceries" },
+                new Category { CategoryId = 11, Name = "Health" },
+                new Category { CategoryId = 12, Name = "Insurance" },
+                new Category { CategoryId = 13, Name = "Medications" },
+                new Category { CategoryId = 14, Name = "Maintenance" },
+                new Category { CategoryId = 15, Name = "Parking" },
+                new Category { CategoryId = 16, Name = "Personal Care" },
+                new Category { CategoryId = 17, Name = "Repairs" },
+                new Category { CategoryId = 18, Name = "Rent/Mortgage" },
+                new Category { CategoryId = 19, Name = "Savings & Investments" },
+                new Category { CategoryId = 20, Name = "Taxes" },
+                new Category { CategoryId = 21, Name = "Technology & Electronics" },
+                new Category { CategoryId = 22, Name = "Transportation" },
+                new Category { CategoryId = 23, Name = "Utilities" },
+                new Category { CategoryId = 24, Name = "Vacation" }
+            );
         }
     }
 }
