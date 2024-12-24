@@ -66,7 +66,7 @@ export class NotificationsComponent implements OnInit {
       next: (response) => {
         if (response) {
           this.sanckBarService.success('Notification deleted successfully.');
-          this.loadAllNotifcations();
+          window.location.reload();
         } else {
           this.sanckBarService.error('Failed to delete the notiification');
         }

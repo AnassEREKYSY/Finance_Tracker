@@ -115,7 +115,7 @@ public class NotificationService(StoreContext _context,IUserService userService,
 
         if (searchedNotifications == null || searchedNotifications.Count == 0)
         {
-            response.Success = false;
+            response.Success = true;
             response.Message = $"No Notification found for the user with ID {userId}.";
             return response;
         }
