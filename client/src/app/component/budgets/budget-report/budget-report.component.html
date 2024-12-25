@@ -1,0 +1,33 @@
+<div class="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+  <div class="flex items-center justify-between mb-6">
+    <button routerLink="/budgets/" class="text-gray-700 hover:text-indigo-500 focus:outline-none">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+    <h1 class="text-3xl text-center font-semibold text-gray-700">Budget Report</h1>
+    <div></div>
+  </div>
+
+  <form [formGroup]="budgetReportForm" (ngSubmit)="onSubmit()">
+    <div class="mb-4">
+      <label class="block text-gray-700 font-medium mb-2">Budgets</label>
+      <ng-select 
+        [items]="budgets" 
+        bindLabel="CategoryName" 
+        bindValue="BudgetId" 
+        [multiple]="true" 
+        placeholder="Select Budgets" 
+        formControlName="budget"
+        class="custom-ng-select">
+      </ng-select>
+    </div>
+
+    <div class="flex justify-between mt-6">
+      <button 
+        type="submit" 
+        class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+        [disabled]="budgetReportForm.invalid">Generate Report</button>
+    </div>
+  </form>
+</div>

@@ -66,6 +66,7 @@ builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IBudgetReportService, BudgetReportService>();
 builder.Services.AddScoped<IStoreContext>(provider => provider.GetRequiredService<StoreContext>());
 builder.Services.AddTransient(typeof(Lazy<>), typeof(LazyResolver<>));
 

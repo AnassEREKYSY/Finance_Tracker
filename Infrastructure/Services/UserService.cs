@@ -117,13 +117,13 @@ public class UserService(UserManager<AppUser> userManager, SignInManager<AppUser
                     {
                         totalAmount += transaction.Amount;
                     }
+                    decimal percentBudgetAmount = totalAmount / budget.Amount * 100;
+                    var notification = new CreateUpdateNotifications
+                    {
+                        Message = $"You have spent {totalAmount:F2}$ ({percentBudgetAmount:F2}%) of the budget created for {budget.CategoryName} --- {budget.Amount:F2}$ betwen {budget.StartDate.ToString("yyyy-MM-dd")} and {budget.EndDate.ToString("yyyy-MM-dd")}"
+                    };
+                    await notificationService.Value.CreateNotificationAsync(notification,userId, budget.BudgetId);                                                  
                 }
-                decimal percentBudgetAmount = totalAmount / budget.Amount * 100;
-                var notification = new CreateUpdateNotifications
-                {
-                    Message = $"You have spent {totalAmount:F2}$ ({percentBudgetAmount:F2}%) of the budget created for {budget.CategoryName} --- {budget.Amount:F2}$ betwen {budget.StartDate.ToString("yyyy-MM-dd")} and {budget.EndDate.ToString("yyyy-MM-dd")}"
-                };
-                await notificationService.Value.CreateNotificationAsync(notification,userId, budget.BudgetId);                                                  
             }
         }
     }

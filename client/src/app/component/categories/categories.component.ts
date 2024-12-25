@@ -9,8 +9,7 @@ import { SnackBarService } from '../../core/services/snack-bar.service';
     selector: 'app-categories',
     standalone:true,
     imports: [
-        CommonModule,
-        RouterLink
+        CommonModule
     ],
     templateUrl: './categories.component.html',
     styleUrl: './categories.component.scss'
