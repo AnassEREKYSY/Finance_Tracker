@@ -60,6 +60,7 @@ export class BudgetReportComponent implements OnInit{
       const selectedBudgetIds = this.budgetReportForm.get('budget')?.value;
 
       if (selectedBudgetIds && Array.isArray(selectedBudgetIds)) {
+        console.log(selectedBudgetIds)
         this.reportService.generateBudgetReport(selectedBudgetIds).subscribe({
           next: (response) => {
             const blob = new Blob([response], { type: 'application/pdf' });

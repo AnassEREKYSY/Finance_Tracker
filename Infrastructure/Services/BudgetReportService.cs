@@ -2,17 +2,28 @@ using Core.Dtos;
 using Core.IServices;
 using System.Text;
 using DinkToPdf;
+using DinkToPdf.Contracts;
 using Core.Response;
+using System.IO;
 
 namespace Infrastructure.Services
 {
-    public class BudgetReportService(IBudgetService _budgetService, ITransactionService _transactionService) : IBudgetReportService
+    public class BudgetReportService : IBudgetReportService
     {
+        private readonly IBudgetService _budgetService;
+        private readonly ITransactionService _transactionService;
+
+        public BudgetReportService(IBudgetService budgetService, ITransactionService transactionService)
+        {
+            _budgetService = budgetService;
+            _transactionService = transactionService;
+        }
 
         public async Task<ServiceResponse<byte[]>> GenerateBudgetReportAsync(IEnumerable<int> budgetIds, string userId)
         {
             var selectedBudgets = new List<CreateUpdateBudget>();
             var response = new ServiceResponse<byte[]>();
+
             foreach (var budgetId in budgetIds)
             {
                 var budgetResponse = await _budgetService.GetBudgetByIdAsync(budgetId, userId);
@@ -22,9 +33,9 @@ namespace Infrastructure.Services
 
             if (selectedBudgets.Count == 0)
             {
-                response.Success=false;
-                response.Message="No valid budgets found for the given IDs.";
-                response.Data=null;
+                response.Success = false;
+                response.Message = "No valid budgets found for the given IDs.";
+                response.Data = null;
                 return response;
             }
 
@@ -68,6 +79,7 @@ namespace Infrastructure.Services
 
             htmlBuilder.Append("</body></html>");
 
+            // Create the PDF converter (no need to specify the library path here)
             var pdfConverter = new SynchronizedConverter(new PdfTools());
             var document = new HtmlToPdfDocument
             {
@@ -83,8 +95,9 @@ namespace Infrastructure.Services
             {
                 HtmlContent = htmlBuilder.ToString(),
             });
-            response.Success=true;
-            response.Data=pdfConverter.Convert(document);
+
+            response.Success = true;
+            response.Data = pdfConverter.Convert(document);
             return response;
         }
     }
