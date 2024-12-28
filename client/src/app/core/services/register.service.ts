@@ -13,7 +13,7 @@ export class RegisterService {
 
   register(register: Register): Observable<Register> {
     return this.http
-      .post<Register>(`${this.apiUrl}/Users/register`, register)
+      .post<Register>(`${this.apiUrl}Users/register`, register)
       .pipe(catchError(this.handleError));
   }
 

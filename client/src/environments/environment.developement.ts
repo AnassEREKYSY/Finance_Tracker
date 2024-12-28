@@ -1,4 +1,4 @@
 export const environment = {
     production:false,
-    apiUrl: 'http://localhost:5077/api/',
+    apiUrl: 'http://finance_tracker-api:5077/api/',
 };

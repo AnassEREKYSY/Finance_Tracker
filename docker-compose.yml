@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DefaultConnection=Server=sql,1433;Database=FinanceTracker;User Id=sa;Password=Password@1;TrustServerCertificate=True
+    ports:
+      - "5000:80"
+    depends_on:
+      - sql
+    networks:
+      - my_network
+
+  sql:
+    image: mcr.microsoft.com/azure-sql-edge
+    environment:
+      ACCEPT_EULA: "1"
+      SA_PASSWORD: "Password@1"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql-data:/var/opt/mssql
+    networks:
+      - my_network
+
+volumes:
+  sql-data:
+
+networks:
+  my_network:
+    driver: bridge
