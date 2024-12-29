@@ -21,6 +21,7 @@ services:
       - "5000:80"
     depends_on:
       - sql
+    command: ["/wait-for-it.sh", "sql:1433", "--", "dotnet", "API.dll"]
     networks:
       - my_network
 
@@ -35,6 +36,13 @@ services:
       - sql-data:/var/opt/mssql
     networks:
       - my_network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "1433"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
 
 volumes:
   sql-data:
