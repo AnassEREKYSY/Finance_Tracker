@@ -17,6 +17,20 @@ namespace Infrastructure.Services
         {
             _budgetService = budgetService;
             _transactionService = transactionService;
+
+            // Set a custom path for the libwkhtmltox.dll
+            string wkhtmltoxPath = @"D:\My Data\Projects\Finance_Tracker\Finance_Tracker\server\API\bin\Debug\net8.0\libs\libwkhtmltox.dll"; // replace this with your custom path
+
+            // Ensure the DLL file exists at the specified location
+            if (File.Exists(wkhtmltoxPath))
+            {
+                // Set the environment variable to point to the DLL location
+                Environment.SetEnvironmentVariable("WKHTMLTOPDF_PATH", wkhtmltoxPath);
+            }
+            else
+            {
+                throw new FileNotFoundException("libwkhtmltox.dll not found at the specified path.", wkhtmltoxPath);
+            }
         }
 
         public async Task<ServiceResponse<byte[]>> GenerateBudgetReportAsync(IEnumerable<int> budgetIds, string userId)
@@ -24,6 +38,7 @@ namespace Infrastructure.Services
             var selectedBudgets = new List<CreateUpdateBudget>();
             var response = new ServiceResponse<byte[]>();
 
+            // Fetch the selected budgets by their IDs
             foreach (var budgetId in budgetIds)
             {
                 var budgetResponse = await _budgetService.GetBudgetByIdAsync(budgetId, userId);
@@ -31,6 +46,7 @@ namespace Infrastructure.Services
                     selectedBudgets.Add(budgetResponse.Data!);
             }
 
+            // If no valid budgets are found, return an error response
             if (selectedBudgets.Count == 0)
             {
                 response.Success = false;
@@ -42,6 +58,7 @@ namespace Infrastructure.Services
             var htmlBuilder = new StringBuilder();
             htmlBuilder.Append("<html><body><h1>Budget Report</h1>");
 
+            // Generate HTML content for the report
             foreach (var budget in selectedBudgets)
             {
                 var transactionsResponse = await _transactionService.GetTransactionsIntervalTimeAsync(
