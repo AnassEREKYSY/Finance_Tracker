@@ -8,7 +8,10 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    networks:
+      - my_network
 
   api:
     build:
@@ -16,33 +19,42 @@ services:
       dockerfile: server/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - DefaultConnection=Server=sql,1433;Database=FinanceTracker;User Id=sa;Password=Password@1;TrustServerCertificate=True
+      - DefaultConnection=${DB_CONNECTION_STRING}
     ports:
       - "5000:80"
     depends_on:
-      - sql
-    command: ["/wait-for-it.sh", "sql:1433", "--", "dotnet", "API.dll"]
+      sql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 10s
+      retries: 3
+      start_period: 20s
+      timeout: 5s
     networks:
       - my_network
+    command: ["bash", "-c", "dotnet ef database update --project /app/server/API/API.csproj && dotnet API.dll"]
 
   sql:
     image: mcr.microsoft.com/azure-sql-edge
     environment:
       ACCEPT_EULA: "1"
-      SA_PASSWORD: "Password@1"
+      SA_PASSWORD: ${SA_PASSWORD}  
     ports:
-      - "1433:1433"
+      - "1433:1433"  
     volumes:
-      - sql-data:/var/opt/mssql
+      - sql-data:/var/opt/mssql  
+      - ./server/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql 
+      - ./server/init-db.sh:/init-db.sh  
+    entrypoint: /bin/bash /init-db.sh
     networks:
       - my_network
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "1433"]
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S sql -U sa -P \"$SA_PASSWORD\" -Q \"SELECT 1\""]
       interval: 10s
       retries: 5
       start_period: 30s
       timeout: 10s
-
 
 volumes:
   sql-data:

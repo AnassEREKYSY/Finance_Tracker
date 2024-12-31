@@ -1,49 +1,78 @@
-# Use a Debian-based .NET image for easier compatibility with mssql-tools
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-debian AS base
+# Stage 1: Base image for runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-# Install dependencies: bash, curl, gnupg, mssql-tools
-RUN apt-get update \
-    && apt-get install -y bash curl gnupg2 apt-transport-https \
-    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
-    && apt-get update \
-    && ACCEPT_EULA=Y apt-get install -y mssql-tools \
-    && apt-get clean
+# Install necessary tools and clean up (e.g., mssql tools)
+RUN apt-get update && \
+    apt-get install -y bash curl gnupg2 apt-transport-https && \
+    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y mssql-tools && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set environment variable to enable globalization
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
-# Build stage for the API
-FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+# Stage 2: Build the application
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+
+# Copy solution and project files into the container
+# Update the paths based on your directory structure
 COPY ["server/Finance_Tracker.sln", "server/"]
 COPY ["server/API/API.csproj", "server/API/"]
 COPY ["server/Core/Core.csproj", "server/Core/"]
 COPY ["server/Infrastructure/Infrastructure.csproj", "server/Infrastructure/"]
+
+# Restore dependencies
 RUN dotnet restore "server/Finance_Tracker.sln"
-COPY . .
+
+# Copy the rest of the source code from the local machine to the container
+COPY ./server/ ./server/
+
+# Build the application
 WORKDIR "/src/server"
 RUN dotnet build "Finance_Tracker.sln" -c Release -o /app/build
 
+# Stage 3: Publish the application
 FROM build AS publish
 RUN dotnet publish "Finance_Tracker.sln" -c Release -o /app/publish
 
-# Final image to run the application
-FROM base AS final
+# Stage 4: Final runtime image (only SDK tools temporarily used)
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
-# Copy the published output from the previous stage
+# Install the .NET SDK correctly by adding Microsoft's repository (needed for dotnet-ef)
+RUN apt-get update && \
+    apt-get install -y curl gnupg2 apt-transport-https && \
+    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/dotnetdev.list && \
+    apt-get update && \
+    apt-get install -y dotnet-sdk-8.0
+
+# Install dotnet-ef globally
+RUN dotnet tool install --global dotnet-ef
+
+# Add the path to the .NET tools to the PATH
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+# Copy the published files from the previous stage
 COPY --from=publish /app/publish .
 
-# Copy the wait-for-it script
+# Copy the wait-for-it script (to wait for SQL Server to be ready)
 COPY ./wait-for-it.sh /wait-for-it.sh
+
+# Make sure the script is executable
 RUN chmod +x /wait-for-it.sh
 
-# Copy the init-db.sql for database initialization
-COPY ./init-db.sql /init-db.sql
+# Copy the database initialization script (if required)
+COPY ./server/init-db.sql /init-db.sql
 
-# Entry point for the container: wait for SQL Server to be ready and then start the API
-ENTRYPOINT ["/wait-for-it.sh", "sql:1433", "--", "dotnet", "API.dll"]
+# Set the working directory to the correct folder for migrations
+WORKDIR /app/server/API
+
+# Run migrations and start the application
+CMD /wait-for-it.sh sql:1433 -- dotnet ef database update --project /app/server/API/API.csproj && dotnet API.dll
