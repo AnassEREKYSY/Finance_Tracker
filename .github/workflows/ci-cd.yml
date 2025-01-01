@@ -4,29 +4,32 @@ on:
   push:
     branches:
       - main
+env:
+  DOCKER_HUB_USERNAME: erekysy
+  IMAGE_NAME: finance_tracker
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    steps:
-      - name: Check out the repository
-        uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+steps:
+  - name: Checkout code
+    uses: actions/checkout@v3
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+  - name: Set up Docker Buildx
+    uses: docker/setup-buildx-action@v2
 
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./docker-compose.yml
-          push: true
-          tags: |
-            erekysy/finance_tracker_client:latest
-            erekysy/finance_tracker_api:latest
+  - name: Log in to Docker Hub
+    uses: docker/login-action@v2
+    with:
+      username: ${{ secrets.DOCKER_USERNAME }}
+      password: ${{ secrets.DOCKER_PASSWORD }}
+
+  - name: Build and push Docker images
+    uses: docker/build-push-action@v4
+    with:
+      context: .
+      file: ./docker-compose.yml
+      push: true
+      tags: ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+
