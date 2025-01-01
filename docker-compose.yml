@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: client/Dockerfile
+    image: erekysy/finance_tracker-client:latest
     ports:
       - "80:80"
     depends_on:
@@ -17,6 +18,7 @@ services:
     build:
       context: .
       dockerfile: server/Dockerfile
+    image: erekysy/finance_tracker-api:latest
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - DefaultConnection=${DB_CONNECTION_STRING}
