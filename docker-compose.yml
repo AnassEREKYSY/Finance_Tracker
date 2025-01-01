@@ -1,42 +1,64 @@
-name: CI/CD Pipeline
+version: '3.8'
 
-on:
-  push:
-    branches:
-      - main
+services:
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - my_network
 
-env:
-  DOCKER_HUB_USERNAME: erekysy
-  IMAGE_NAME: finance_tracker
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DefaultConnection=${DB_CONNECTION_STRING}
+    ports:
+      - "5000:80"
+    depends_on:
+      sql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 10s
+      retries: 3
+      start_period: 20s
+      timeout: 5s
+    networks:
+      - my_network
+    command: ["bash", "-c", "dotnet ef database update --project /app/server/API/API.csproj && dotnet API.dll"]
 
-jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  sql:
+    image: mcr.microsoft.com/azure-sql-edge
+    environment:
+      ACCEPT_EULA: "1"
+      SA_PASSWORD: ${SA_PASSWORD}  
+    ports:
+      - "1433:1433"  
+    volumes:
+      - sql-data:/var/opt/mssql  
+      - ./server/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql 
+      - ./server/init-db.sh:/init-db.sh  
+    entrypoint: /bin/bash /init-db.sh
+    networks:
+      - my_network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S sql -U sa -P \"$SA_PASSWORD\" -Q \"SELECT 1\""]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+volumes:
+  sql-data:
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build and push client image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ../../client/Dockerfile
-          push: true
-          tags: ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}-client:latest
-
-      - name: Build and push server image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ../../server/Dockerfile
-          push: true
-          tags: ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}-server:latest
+networks:
+  my_network:
+    driver: bridge
